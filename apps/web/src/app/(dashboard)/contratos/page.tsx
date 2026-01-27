@@ -1,0 +1,12 @@
+export default function ContratosPage() {
+  return (
+    <div>
+      <h1 className="text-3xl font-bold mb-6">Contratos</h1>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <p className="text-gray-600">
+          Módulo de Contratos em desenvolvimento...
+        </p>
+      </div>
+    </div>
+  );
+}
