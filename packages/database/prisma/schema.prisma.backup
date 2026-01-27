@@ -1,0 +1,567 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS & AUTH
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(OPERATOR)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  OPERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// ============================================
+// CLIENTS
+// ============================================
+
+model Client {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  phone        String
+  document     String         @unique
+  documentType DocumentType
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?        @map("zip_code")
+  status       ClientStatus   @default(ACTIVE)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  rentals      Rental[]
+  invoices     Invoice[]
+
+  @@map("clients")
+}
+
+enum DocumentType {
+  CPF
+  CNPJ
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+// ============================================
+// DRIVERS
+// ============================================
+
+model Driver {
+  id                String         @id @default(uuid())
+  name              String
+  email             String         @unique
+  phone             String
+  document          String         @unique
+  licenseNumber     String         @unique @map("license_number")
+  licenseCategory   LicenseCategory @map("license_category")
+  licenseExpiresAt  DateTime       @map("license_expires_at")
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?        @map("zip_code")
+  status            DriverStatus   @default(ACTIVE)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  rentals           Rental[]
+  fines             Fine[]
+
+  @@map("drivers")
+}
+
+enum LicenseCategory {
+  A
+  B
+  AB
+  C
+  D
+  E
+}
+
+enum DriverStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// ============================================
+// VEHICLES
+// ============================================
+
+model Vehicle {
+  id                 String         @id @default(uuid())
+  plate              String         @unique
+  brand              String
+  model              String
+  year               Int
+  color              String
+  registrationNumber String         @unique @map("registration_number")
+  chassis            String         @unique
+  dailyRate          Decimal        @map("daily_rate") @db.Decimal(10, 2)
+  mileage            Int            @default(0)
+  fuelType           FuelType       @map("fuel_type")
+  transmission       TransmissionType
+  category           VehicleCategory
+  capacity           Int            @default(5)
+  status             VehicleStatus  @default(AVAILABLE)
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  rentals            Rental[]
+  maintenances       Maintenance[]
+  inspections        Inspection[]
+  insurances         Insurance[]
+  fines              Fine[]
+  accidents          Accident[]
+
+  @@map("vehicles")
+}
+
+enum FuelType {
+  GASOLINE
+  ETHANOL
+  DIESEL
+  FLEX
+  ELECTRIC
+  HYBRID
+}
+
+enum TransmissionType {
+  MANUAL
+  AUTOMATIC
+}
+
+enum VehicleCategory {
+  COMPACT
+  SEDAN
+  SUV
+  PICKUP
+  VAN
+  LUXURY
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+  INACTIVE
+}
+
+// ============================================
+// RENTALS
+// ============================================
+
+model Rental {
+  id           String        @id @default(uuid())
+  clientId     String        @map("client_id")
+  driverId     String        @map("driver_id")
+  vehicleId    String        @map("vehicle_id")
+  startDate    DateTime      @map("start_date")
+  endDate      DateTime      @map("end_date")
+  returnDate   DateTime?     @map("return_date")
+  dailyRate    Decimal       @map("daily_rate") @db.Decimal(10, 2)
+  totalDays    Int           @map("total_days")
+  totalAmount  Decimal       @map("total_amount") @db.Decimal(10, 2)
+  deposit      Decimal       @default(0) @db.Decimal(10, 2)
+  discount     Decimal       @default(0) @db.Decimal(10, 2)
+  status       RentalStatus  @default(PENDING)
+  notes        String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  client       Client        @relation(fields: [clientId], references: [id])
+  driver       Driver        @relation(fields: [driverId], references: [id])
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+  inspections  Inspection[]
+  contract     Contract?
+  invoices     Invoice[]
+
+  @@map("rentals")
+}
+
+enum RentalStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// CONTRACTS
+// ============================================
+
+model Contract {
+  id          String         @id @default(uuid())
+  rentalId    String         @unique @map("rental_id")
+  fileUrl     String         @map("file_url")
+  signedAt    DateTime?      @map("signed_at")
+  signedBy    String?        @map("signed_by")
+  status      ContractStatus @default(PENDING)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  rental      Rental         @relation(fields: [rentalId], references: [id])
+
+  @@map("contracts")
+}
+
+enum ContractStatus {
+  PENDING
+  SIGNED
+  CANCELLED
+}
+
+// ============================================
+// INSPECTIONS (VISTORIAS)
+// ============================================
+
+model Inspection {
+  id          String           @id @default(uuid())
+  rentalId    String           @map("rental_id")
+  vehicleId   String           @map("vehicle_id")
+  type        InspectionType
+  mileage     Int
+  fuelLevel   Int              @map("fuel_level")
+  status      InspectionStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  rental      Rental           @relation(fields: [rentalId], references: [id])
+  vehicle     Vehicle          @relation(fields: [vehicleId], references: [id])
+  damages     Damage[]
+  photos      InspectionPhoto[]
+
+  @@map("inspections")
+}
+
+enum InspectionType {
+  PICKUP
+  RETURN
+}
+
+enum InspectionStatus {
+  PENDING
+  COMPLETED
+  APPROVED
+  REJECTED
+}
+
+model Damage {
+  id            String     @id @default(uuid())
+  inspectionId  String     @map("inspection_id")
+  description   String
+  severity      DamageSeverity
+  location      String
+  estimatedCost Decimal?   @map("estimated_cost") @db.Decimal(10, 2)
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  // Relations
+  inspection    Inspection @relation(fields: [inspectionId], references: [id])
+
+  @@map("damages")
+}
+
+enum DamageSeverity {
+  MINOR
+  MODERATE
+  SEVERE
+}
+
+model InspectionPhoto {
+  id            String     @id @default(uuid())
+  inspectionId  String     @map("inspection_id")
+  url           String
+  description   String?
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  // Relations
+  inspection    Inspection @relation(fields: [inspectionId], references: [id])
+
+  @@map("inspection_photos")
+}
+
+// ============================================
+// MAINTENANCE (MANUTENÇÃO)
+// ============================================
+
+model Maintenance {
+  id            String            @id @default(uuid())
+  vehicleId     String            @map("vehicle_id")
+  type          MaintenanceType
+  description   String
+  scheduledDate DateTime          @map("scheduled_date")
+  completedDate DateTime?         @map("completed_date")
+  cost          Decimal           @db.Decimal(10, 2)
+  mileage       Int
+  status        MaintenanceStatus @default(SCHEDULED)
+  notes         String?
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id])
+
+  @@map("maintenances")
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  OIL_CHANGE
+  TIRE_CHANGE
+  BRAKE_SERVICE
+  GENERAL_INSPECTION
+  OTHER
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// INSURANCE (SEGUROS)
+// ============================================
+
+model Insurance {
+  id            String          @id @default(uuid())
+  vehicleId     String          @map("vehicle_id")
+  provider      String
+  policyNumber  String          @unique @map("policy_number")
+  startDate     DateTime        @map("start_date")
+  endDate       DateTime        @map("end_date")
+  amount        Decimal         @db.Decimal(10, 2)
+  coverageType  String          @map("coverage_type")
+  status        InsuranceStatus @default(ACTIVE)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle       Vehicle         @relation(fields: [vehicleId], references: [id])
+  accidents     Accident[]
+
+  @@map("insurances")
+}
+
+enum InsuranceStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// ============================================
+// ACCIDENTS (SINISTROS)
+// ============================================
+
+model Accident {
+  id            String         @id @default(uuid())
+  vehicleId     String         @map("vehicle_id")
+  insuranceId   String?        @map("insurance_id")
+  date          DateTime
+  location      String
+  description   String
+  severity      AccidentSeverity
+  estimatedCost Decimal?       @map("estimated_cost") @db.Decimal(10, 2)
+  claimNumber   String?        @unique @map("claim_number")
+  status        AccidentStatus @default(REPORTED)
+  notes         String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
+  insurance     Insurance?     @relation(fields: [insuranceId], references: [id])
+  documents     AccidentDocument[]
+
+  @@map("accidents")
+}
+
+enum AccidentSeverity {
+  MINOR
+  MODERATE
+  SEVERE
+  TOTAL_LOSS
+}
+
+enum AccidentStatus {
+  REPORTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SETTLED
+}
+
+model AccidentDocument {
+  id          String   @id @default(uuid())
+  accidentId  String   @map("accident_id")
+  type        String
+  url         String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  accident    Accident @relation(fields: [accidentId], references: [id])
+
+  @@map("accident_documents")
+}
+
+// ============================================
+// FINES (MULTAS)
+// ============================================
+
+model Fine {
+  id          String     @id @default(uuid())
+  vehicleId   String     @map("vehicle_id")
+  driverId    String?    @map("driver_id")
+  date        DateTime
+  location    String
+  description String
+  amount      Decimal    @db.Decimal(10, 2)
+  dueDate     DateTime   @map("due_date")
+  paidDate    DateTime?  @map("paid_date")
+  status      FineStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle     Vehicle    @relation(fields: [vehicleId], references: [id])
+  driver      Driver?    @relation(fields: [driverId], references: [id])
+
+  @@map("fines")
+}
+
+enum FineStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CONTESTED
+}
+
+// ============================================
+// FINANCIAL (FINANCEIRO)
+// ============================================
+
+model Invoice {
+  id            String        @id @default(uuid())
+  clientId      String        @map("client_id")
+  rentalId      String?       @map("rental_id")
+  invoiceNumber String        @unique @map("invoice_number")
+  amount        Decimal       @db.Decimal(10, 2)
+  dueDate       DateTime      @map("due_date")
+  paidDate      DateTime?     @map("paid_date")
+  status        InvoiceStatus @default(PENDING)
+  description   String?
+  notes         String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  client        Client        @relation(fields: [clientId], references: [id])
+  rental        Rental?       @relation(fields: [rentalId], references: [id])
+  transactions  Transaction[]
+
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  invoiceId     String?           @map("invoice_id")
+  type          TransactionType
+  category      String
+  amount        Decimal           @db.Decimal(10, 2)
+  date          DateTime          @default(now())
+  paymentMethod PaymentMethod     @map("payment_method")
+  description   String
+  reference     String?
+  status        TransactionStatus @default(COMPLETED)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  invoice       Invoice?          @relation(fields: [invoiceId], references: [id])
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  PIX
+  BANK_TRANSFER
+  CHECK
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+// ============================================
+// SYSTEM SETTINGS
+// ============================================
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}

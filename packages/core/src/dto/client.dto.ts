@@ -8,20 +8,20 @@ export class CreateClientDto {
   @IsString()
   @MinLength(3)
   @MaxLength(100)
-  name!: string;
+  name: string;
 
   @IsEmail()
-  email!: string;
+  email: string;
 
   @IsString()
   @Matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, { message: 'Formato: (99) 99999-9999' })
-  phone!: string;
+  phone: string;
 
   @IsString()
-  document!: string;
+  document: string;
 
   @IsEnum(['CPF', 'CNPJ'])
-  documentType!: 'CPF' | 'CNPJ';
+  documentType: 'CPF' | 'CNPJ';
 
   @IsOptional()
   @IsString()

@@ -1,38 +1,114 @@
-/**
- * DTOs para módulo de Veículos
- */
+import { IsString, IsNumber, IsOptional, IsEnum, MinLength, MaxLength, Min, Max } from 'class-validator';
 
-export interface CreateVehicleDto {
+export class CreateVehicleDto {
+  @IsString()
   plate: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
   brand: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
   model: string;
+
+  @IsNumber()
+  @Min(1990)
+  @Max(new Date().getFullYear() + 1)
   year: number;
+
+  @IsString()
   color: string;
+
+  @IsString()
   registrationNumber: string;
+
+  @IsString()
+  @MinLength(17)
+  @MaxLength(17)
   chassis: string;
+
+  @IsNumber()
+  @Min(0)
   dailyRate: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   mileage?: number;
+
+  @IsEnum(['GASOLINE', 'ETHANOL', 'DIESEL', 'FLEX', 'ELECTRIC', 'HYBRID'])
   fuelType: 'GASOLINE' | 'ETHANOL' | 'DIESEL' | 'FLEX' | 'ELECTRIC' | 'HYBRID';
+
+  @IsEnum(['MANUAL', 'AUTOMATIC'])
   transmission: 'MANUAL' | 'AUTOMATIC';
+
+  @IsEnum(['COMPACT', 'SEDAN', 'SUV', 'PICKUP', 'VAN', 'LUXURY'])
   category: 'COMPACT' | 'SEDAN' | 'SUV' | 'PICKUP' | 'VAN' | 'LUXURY';
+
+  @IsOptional()
+  @IsNumber()
   capacity?: number;
 }
 
-export interface UpdateVehicleDto {
+export class UpdateVehicleDto {
+  @IsOptional()
+  @IsString()
   plate?: string;
+
+  @IsOptional()
+  @IsString()
   brand?: string;
+
+  @IsOptional()
+  @IsString()
   model?: string;
+
+  @IsOptional()
+  @IsNumber()
   year?: number;
+
+  @IsOptional()
+  @IsString()
   color?: string;
+
+  @IsOptional()
+  @IsString()
   registrationNumber?: string;
+
+  @IsOptional()
+  @IsString()
   chassis?: string;
+
+  @IsOptional()
+  @IsNumber()
   dailyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
   mileage?: number;
-  fuelType?: 'GASOLINE' | 'ETHANOL' | 'DIESEL' | 'FLEX' | 'ELECTRIC' | 'HYBRID';
-  transmission?: 'MANUAL' | 'AUTOMATIC';
-  category?: 'COMPACT' | 'SEDAN' | 'SUV' | 'PICKUP' | 'VAN' | 'LUXURY';
+
+  @IsOptional()
+  @IsEnum(['GASOLINE', 'ETHANOL', 'DIESEL', 'FLEX', 'ELECTRIC', 'HYBRID'])
+  fuelType?: string;
+
+  @IsOptional()
+  @IsEnum(['MANUAL', 'AUTOMATIC'])
+  transmission?: string;
+
+  @IsOptional()
+  @IsEnum(['COMPACT', 'SEDAN', 'SUV', 'PICKUP', 'VAN', 'LUXURY'])
+  category?: string;
+
+  @IsOptional()
+  @IsNumber()
   capacity?: number;
-  status?: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+
+  @IsOptional()
+  @IsEnum(['AVAILABLE', 'RENTED', 'MAINTENANCE', 'INACTIVE'])
+  status?: string;
 }
 
 export interface VehicleResponseDto {
@@ -50,20 +126,42 @@ export interface VehicleResponseDto {
   transmission: string;
   category: string;
   capacity: number;
-  status: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+  status: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 }
 
-export interface FilterVehicleDto {
+export class FilterVehicleDto {
+  @IsOptional()
+  @IsString()
   brand?: string;
+
+  @IsOptional()
+  @IsString()
   model?: string;
-  category?: 'COMPACT' | 'SEDAN' | 'SUV' | 'PICKUP' | 'VAN' | 'LUXURY';
-  status?: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+
+  @IsOptional()
+  @IsEnum(['COMPACT', 'SEDAN', 'SUV', 'PICKUP', 'VAN', 'LUXURY'])
+  category?: string;
+
+  @IsOptional()
+  @IsEnum(['AVAILABLE', 'RENTED', 'MAINTENANCE', 'INACTIVE'])
+  status?: string;
+
+  @IsOptional()
+  @IsNumber()
   minDailyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
   maxDailyRate?: number;
-  page?: number;
-  limit?: number;
+
+  @IsOptional()
+  page?: number = 1;
+
+  @IsOptional()
+  limit?: number = 10;
 }
 
 export interface VehicleStatsDto {

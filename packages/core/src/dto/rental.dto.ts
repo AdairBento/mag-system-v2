@@ -1,30 +1,83 @@
-/**
- * DTOs para módulo de Locações
- */
+import { IsString, IsDateString, IsNumber, IsOptional, IsEnum, Min } from 'class-validator';
 
-export interface CreateRentalDto {
+export class CreateRentalDto {
+  @IsString()
   clientId: string;
+
+  @IsString()
   driverId: string;
+
+  @IsString()
   vehicleId: string;
+
+  @IsDateString()
   startDate: Date;
+
+  @IsDateString()
   endDate: Date;
+
+  @IsNumber()
+  @Min(0)
   dailyRate: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   deposit?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   discount?: number;
+
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
-export interface UpdateRentalDto {
+export class UpdateRentalDto {
+  @IsOptional()
+  @IsString()
   clientId?: string;
+
+  @IsOptional()
+  @IsString()
   driverId?: string;
+
+  @IsOptional()
+  @IsString()
   vehicleId?: string;
+
+  @IsOptional()
+  @IsDateString()
   startDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
   endDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
   returnDate?: Date;
+
+  @IsOptional()
+  @IsNumber()
   dailyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
   deposit?: number;
+
+  @IsOptional()
+  @IsNumber()
   discount?: number;
+
+  @IsOptional()
+  @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsEnum(['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED'])
   status?: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 }
 
@@ -45,17 +98,39 @@ export interface RentalResponseDto {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 }
 
-export interface FilterRentalDto {
+export class FilterRentalDto {
+  @IsOptional()
+  @IsString()
   clientId?: string;
+
+  @IsOptional()
+  @IsString()
   driverId?: string;
+
+  @IsOptional()
+  @IsString()
   vehicleId?: string;
+
+  @IsOptional()
+  @IsEnum(['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED'])
   status?: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+
+  @IsOptional()
+  @IsDateString()
   startDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
   endDate?: Date;
-  page?: number;
-  limit?: number;
+
+  @IsOptional()
+  page?: number = 1;
+
+  @IsOptional()
+  limit?: number = 10;
 }
 
 export interface RentalStatsDto {
