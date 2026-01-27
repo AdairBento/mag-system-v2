@@ -147,6 +147,12 @@ importers:
       '@mag-system/database':
         specifier: workspace:*
         version: link:../database
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
+      class-validator:
+        specifier: ^0.14.1
+        version: 0.14.3
       date-fns:
         specifier: ^3.0.6
         version: 3.6.0
