@@ -4,16 +4,16 @@
  */
 
 // Constants
-export * from './constants/index';
+export * from './constants/index.js';
 
 // Errors
-export * from './errors/index';
+export * from './errors/index.js';
 
 // Utils
-export * from './utils/index';
+export * from './utils/index.js';
 
 // Validators (Zod)
-export * from './validators/index';
+export * from './validators/index.js';
 
 // DTOs
-export * from './dto/index';
+export * from './dto/index.js';
