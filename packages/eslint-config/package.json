@@ -1,0 +1,9 @@
+{
+  "name": "@mag-system/eslint-config",
+  "version": "1.0.0",
+  "main": "base.js",
+  "files": ["base.js", "next.js", "nest.js"],
+  "peerDependencies": {
+    "eslint": "^8.0.0"
+  }
+}
