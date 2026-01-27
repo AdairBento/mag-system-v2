@@ -1,0 +1,123 @@
+import { z } from 'zod';
+export declare const createVehicleSchema: z.ZodObject<{
+    plate: z.ZodEffects<z.ZodString, string, string>;
+    brand: z.ZodString;
+    model: z.ZodString;
+    year: z.ZodNumber;
+    color: z.ZodString;
+    registrationNumber: z.ZodString;
+    chassis: z.ZodString;
+    dailyRate: z.ZodNumber;
+    mileage: z.ZodDefault<z.ZodNumber>;
+    fuelType: z.ZodEnum<["GASOLINE", "ETHANOL", "DIESEL", "FLEX", "ELECTRIC", "HYBRID"]>;
+    transmission: z.ZodEnum<["MANUAL", "AUTOMATIC"]>;
+    category: z.ZodEnum<["COMPACT", "SEDAN", "SUV", "PICKUP", "VAN", "LUXURY"]>;
+    capacity: z.ZodDefault<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    plate: string;
+    brand: string;
+    model: string;
+    year: number;
+    color: string;
+    registrationNumber: string;
+    chassis: string;
+    dailyRate: number;
+    mileage: number;
+    fuelType: "GASOLINE" | "ETHANOL" | "DIESEL" | "FLEX" | "ELECTRIC" | "HYBRID";
+    transmission: "MANUAL" | "AUTOMATIC";
+    category: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY";
+    capacity: number;
+}, {
+    plate: string;
+    brand: string;
+    model: string;
+    year: number;
+    color: string;
+    registrationNumber: string;
+    chassis: string;
+    dailyRate: number;
+    fuelType: "GASOLINE" | "ETHANOL" | "DIESEL" | "FLEX" | "ELECTRIC" | "HYBRID";
+    transmission: "MANUAL" | "AUTOMATIC";
+    category: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY";
+    mileage?: number | undefined;
+    capacity?: number | undefined;
+}>;
+export declare const updateVehicleSchema: z.ZodObject<{
+    plate: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+    brand: z.ZodOptional<z.ZodString>;
+    model: z.ZodOptional<z.ZodString>;
+    year: z.ZodOptional<z.ZodNumber>;
+    color: z.ZodOptional<z.ZodString>;
+    registrationNumber: z.ZodOptional<z.ZodString>;
+    chassis: z.ZodOptional<z.ZodString>;
+    dailyRate: z.ZodOptional<z.ZodNumber>;
+    mileage: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+    fuelType: z.ZodOptional<z.ZodEnum<["GASOLINE", "ETHANOL", "DIESEL", "FLEX", "ELECTRIC", "HYBRID"]>>;
+    transmission: z.ZodOptional<z.ZodEnum<["MANUAL", "AUTOMATIC"]>>;
+    category: z.ZodOptional<z.ZodEnum<["COMPACT", "SEDAN", "SUV", "PICKUP", "VAN", "LUXURY"]>>;
+    capacity: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+} & {
+    status: z.ZodOptional<z.ZodEnum<["AVAILABLE", "RENTED", "MAINTENANCE", "INACTIVE"]>>;
+}, "strip", z.ZodTypeAny, {
+    status?: "INACTIVE" | "AVAILABLE" | "RENTED" | "MAINTENANCE" | undefined;
+    plate?: string | undefined;
+    brand?: string | undefined;
+    model?: string | undefined;
+    year?: number | undefined;
+    color?: string | undefined;
+    registrationNumber?: string | undefined;
+    chassis?: string | undefined;
+    dailyRate?: number | undefined;
+    mileage?: number | undefined;
+    fuelType?: "GASOLINE" | "ETHANOL" | "DIESEL" | "FLEX" | "ELECTRIC" | "HYBRID" | undefined;
+    transmission?: "MANUAL" | "AUTOMATIC" | undefined;
+    category?: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY" | undefined;
+    capacity?: number | undefined;
+}, {
+    status?: "INACTIVE" | "AVAILABLE" | "RENTED" | "MAINTENANCE" | undefined;
+    plate?: string | undefined;
+    brand?: string | undefined;
+    model?: string | undefined;
+    year?: number | undefined;
+    color?: string | undefined;
+    registrationNumber?: string | undefined;
+    chassis?: string | undefined;
+    dailyRate?: number | undefined;
+    mileage?: number | undefined;
+    fuelType?: "GASOLINE" | "ETHANOL" | "DIESEL" | "FLEX" | "ELECTRIC" | "HYBRID" | undefined;
+    transmission?: "MANUAL" | "AUTOMATIC" | undefined;
+    category?: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY" | undefined;
+    capacity?: number | undefined;
+}>;
+export declare const filterVehicleSchema: z.ZodObject<{
+    brand: z.ZodOptional<z.ZodString>;
+    model: z.ZodOptional<z.ZodString>;
+    category: z.ZodOptional<z.ZodEnum<["COMPACT", "SEDAN", "SUV", "PICKUP", "VAN", "LUXURY"]>>;
+    status: z.ZodOptional<z.ZodEnum<["AVAILABLE", "RENTED", "MAINTENANCE", "INACTIVE"]>>;
+    minDailyRate: z.ZodOptional<z.ZodNumber>;
+    maxDailyRate: z.ZodOptional<z.ZodNumber>;
+    page: z.ZodDefault<z.ZodNumber>;
+    limit: z.ZodDefault<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    page: number;
+    limit: number;
+    status?: "INACTIVE" | "AVAILABLE" | "RENTED" | "MAINTENANCE" | undefined;
+    brand?: string | undefined;
+    model?: string | undefined;
+    category?: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY" | undefined;
+    minDailyRate?: number | undefined;
+    maxDailyRate?: number | undefined;
+}, {
+    page?: number | undefined;
+    limit?: number | undefined;
+    status?: "INACTIVE" | "AVAILABLE" | "RENTED" | "MAINTENANCE" | undefined;
+    brand?: string | undefined;
+    model?: string | undefined;
+    category?: "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "VAN" | "LUXURY" | undefined;
+    minDailyRate?: number | undefined;
+    maxDailyRate?: number | undefined;
+}>;
+export type CreateVehicleInput = z.infer<typeof createVehicleSchema>;
+export type UpdateVehicleInput = z.infer<typeof updateVehicleSchema>;
+export type FilterVehicleInput = z.infer<typeof filterVehicleSchema>;
+//# sourceMappingURL=vehicle.validator.d.ts.map
