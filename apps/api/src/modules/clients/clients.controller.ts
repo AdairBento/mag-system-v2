@@ -1,56 +1,39 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { ClientsService } from './clients.service';
+import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
+import { FilterClientDto } from './dto/filter-client.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CreateClientDto, UpdateClientDto, FilterClientDto } from '@mag-system/core';
+import { Client } from '@mag-system/database';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
-@ApiTags('clients')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('clients')
+@UseGuards(JwtAuthGuard)
 export class ClientsController {
-  constructor(private clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Criar novo cliente' })
-  create(@Body() createClientDto: CreateClientDto) {
+  create(@Body() createClientDto: CreateClientDto): Promise<Client> {
     return this.clientsService.create(createClientDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar clientes' })
-  findAll(@Query() filters: FilterClientDto) {
-    return this.clientsService.findAll(filters);
+  findAll(@Query() filter: FilterClientDto): Promise<PaginatedResult<Client>> {
+    return this.clientsService.findAll(filter);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Buscar cliente por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<Client | null> {
     return this.clientsService.findOne(id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualizar cliente' })
-  update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
+  update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto): Promise<Client> {
     return this.clientsService.update(id, updateClientDto);
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletar cliente' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<Client> {
     return this.clientsService.remove(id);
   }
 }

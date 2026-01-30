@@ -1,80 +1,44 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/database/prisma.service';
-import {
-  CreateClientDto,
-  UpdateClientDto,
-  FilterClientDto,
-  ClientResponseDto,
-  PaginatedResponseDto,
-} from '@mag-system/core';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service';
+import { Client } from '@mag-system/database';
+import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
+import { FilterClientDto } from './dto/filter-client.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ClientsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createClientDto: CreateClientDto): Promise<ClientResponseDto> {
-    const client = await this.prisma.client.create({
-      data: createClientDto,
-    });
-
-    return client as ClientResponseDto;
+  async create(dto: CreateClientDto): Promise<Client> {
+    return this.prisma.client.create({ data: dto as any });
   }
 
-  async findAll(
-    filters: FilterClientDto,
-  ): Promise<PaginatedResponseDto<ClientResponseDto>> {
-    const { page = 1, limit = 10, ...where } = filters;
-    const skip = (page - 1) * limit;
+  async findAll(filter: FilterClientDto): Promise<PaginatedResult<Client>> {
+    const { skip = 0, take = 10 } = filter || {};
 
-    const [clients, total] = await Promise.all([
-      this.prisma.client.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.client.count({ where }),
+    const [data, total] = await Promise.all([
+      this.prisma.client.findMany({ skip, take }),
+      this.prisma.client.count(),
     ]);
 
     return {
-      data: clients as ClientResponseDto[],
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      data,
+      total,
+      page: Math.floor(skip / take) + 1,
+      pageSize: take,
     };
   }
 
-  async findOne(id: string): Promise<ClientResponseDto> {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
-    });
-
-    if (!client) {
-      throw new NotFoundException(`Cliente com ID ${id} não encontrado`);
-    }
-
-    return client as ClientResponseDto;
+  async findOne(id: string): Promise<Client | null> {
+    return this.prisma.client.findUnique({ where: { id } });
   }
 
-  async update(
-    id: string,
-    updateClientDto: UpdateClientDto,
-  ): Promise<ClientResponseDto> {
-    await this.findOne(id);
-
-    const client = await this.prisma.client.update({
-      where: { id },
-      data: updateClientDto,
-    });
-
-    return client as ClientResponseDto;
+  async update(id: string, dto: UpdateClientDto): Promise<Client> {
+    return this.prisma.client.update({ where: { id }, data: dto as any });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.findOne(id);
-    await this.prisma.client.delete({ where: { id } });
+  async remove(id: string): Promise<Client> {
+    return this.prisma.client.delete({ where: { id } });
   }
 }
