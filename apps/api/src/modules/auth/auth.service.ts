@@ -3,12 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto, RegisterDto, AuthResponseDto } from '@mag-system/core';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -35,10 +36,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciais inválidas');
@@ -47,7 +45,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private generateTokens(user: any): AuthResponseDto {
+  private generateTokens(user: User): AuthResponseDto {
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
