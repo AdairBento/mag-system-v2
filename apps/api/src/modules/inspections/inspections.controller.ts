@@ -1,33 +1,42 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { InspectionsService } from './inspections.service';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
 import { UpdateInspectionDto } from './dto/update-inspection.dto';
 import { FilterInspectionDto } from './dto/filter-inspection.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { Inspection } from '@mag-system/database';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
-@ApiTags('inspections')
 @Controller('inspections')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class InspectionsController {
   constructor(private readonly inspectionsService: InspectionsService) {}
-  @Post() async create(@Body() dto: CreateInspectionDto): Promise<any> {
-    return this.inspectionsService.create(dto);
+
+  @Post()
+  create(@Body() createInspectionDto: CreateInspectionDto): Promise<Inspection> {
+    return this.inspectionsService.create(createInspectionDto);
   }
-  @Get() async findAll(@Query() filter: FilterInspectionDto): Promise<any> {
+
+  @Get()
+  findAll(@Query() filter: FilterInspectionDto): Promise<PaginatedResult<Inspection>> {
     return this.inspectionsService.findAll(filter);
   }
-  @Get(':id') async findOne(@Param('id') id: string): Promise<any> {
+
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<Inspection | null> {
     return this.inspectionsService.findOne(id);
   }
-  @Put(':id') async update(
+
+  @Put(':id')
+  update(
     @Param('id') id: string,
-    @Body() dto: UpdateInspectionDto
-  ): Promise<any> {
-    return this.inspectionsService.update(id, dto);
+    @Body() updateInspectionDto: UpdateInspectionDto
+  ): Promise<Inspection> {
+    return this.inspectionsService.update(id, updateInspectionDto);
   }
-  @Delete(':id') async remove(@Param('id') id: string): Promise<any> {
+
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<Inspection> {
     return this.inspectionsService.remove(id);
   }
 }
