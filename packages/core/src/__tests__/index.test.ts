@@ -1,5 +1,3 @@
-import { describe, it, expect } from '@jest/globals';
-
 describe('Core Package', () => {
   it('should export modules correctly', () => {
     // Teste básico para garantir que o pacote pode ser importado
