@@ -33,7 +33,13 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - run: pnpm test:cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/api/coverage/lcov.info
+          flags: api
+          name: api-coverage
 
   build:
     runs-on: ubuntu-latest
