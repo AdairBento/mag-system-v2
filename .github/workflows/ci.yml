@@ -47,4 +47,6 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm --filter @mag-system/database prisma generate
       - run: pnpm build
