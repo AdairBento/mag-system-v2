@@ -6,5 +6,15 @@ module.exports = {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ['dist', 'node_modules', '.turbo', '*.d.ts', '*.js', '*.js.map'],
+  ignorePatterns: [
+    'dist',
+    'node_modules',
+    '.turbo',
+    '*.d.ts',
+    '*.js',
+    '*.js.map',
+    '**/__tests__/**',
+    '**/*.test.ts',
+    '**/*.spec.ts'
+  ],
 };
