@@ -12,9 +12,34 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @ApiBearerAuth()
 export class DriversController {
   constructor(private readonly driversService: DriversService) {}
-  @Post() async create(@Body() createDriverDto: CreateDriverDto): Promise<any> { return this.driversService.create(createDriverDto); }
-  @Get() async findAll(@Query() filter: FilterDriverDto): Promise<any> { return this.driversService.findAll(filter); }
-  @Get(':id') async findOne(@Param('id') id: string): Promise<any> { return this.driversService.findOne(id); }
-  @Put(':id') async update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto): Promise<any> { return this.driversService.update(id, updateDriverDto); }
-  @Delete(':id') async remove(@Param('id') id: string): Promise<any> { return this.driversService.remove(id); }
+
+  @Post()
+  @ApiOperation({ summary: 'Criar novo motorista' })
+  async create(@Body() createDriverDto: CreateDriverDto): Promise<any> {
+    return this.driversService.create(createDriverDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar todos os motoristas' })
+  async findAll(@Query() filter: FilterDriverDto): Promise<any> {
+    return this.driversService.findAll(filter);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar motorista por ID' })
+  async findOne(@Param('id') id: string): Promise<any> {
+    return this.driversService.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Atualizar motorista' })
+  async update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto): Promise<any> {
+    return this.driversService.update(id, updateDriverDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Deletar motorista' })
+  async remove(@Param('id') id: string): Promise<any> {
+    return this.driversService.remove(id);
+  }
 }

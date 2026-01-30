@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDriverDto {
@@ -23,6 +23,7 @@ export class CreateDriverDto {
   licenseNumber: string;
 
   @ApiProperty()
+  @IsString()
   licenseCategory: string;
 
   @ApiProperty()

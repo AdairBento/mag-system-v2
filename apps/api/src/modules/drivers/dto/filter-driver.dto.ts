@@ -1,25 +1,19 @@
-import { IsOptional, IsString, IsEnum } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class FilterDriverDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @Type(() => Number)
-  skip?: number = 0;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @Type(() => Number)
-  take?: number = 10;
-
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  status?: string;
+  name?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  search?: string;
+  document?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  licenseNumber?: string;
 }
