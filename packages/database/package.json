@@ -4,7 +4,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "prisma generate",
+    "build": "prisma generate && tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -18,9 +18,10 @@
     "@prisma/client": "^5.8.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "@mag-system/eslint-config": "workspace:*",
     "prisma": "^5.8.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3",
-    "@faker-js/faker": "^8.3.1"
+    "typescript": "^5.3.3"
   }
 }

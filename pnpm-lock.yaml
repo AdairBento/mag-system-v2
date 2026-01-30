@@ -106,6 +106,9 @@ importers:
         specifier: 5.0.1
         version: 5.0.1(express@4.22.1)
     devDependencies:
+      '@mag-system/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@nestjs/cli':
         specifier: ^10.4.9
         version: 10.4.9
@@ -215,6 +218,9 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@3.4.19)
     devDependencies:
+      '@mag-system/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@types/node':
         specifier: ^20.10.6
         version: 20.19.30
@@ -301,6 +307,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.3.1
         version: 8.4.1
+      '@mag-system/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       prisma:
         specifier: ^5.8.0
         version: 5.22.0

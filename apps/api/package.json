@@ -36,6 +36,7 @@
     "swagger-ui-express": "5.0.1"
   },
   "devDependencies": {
+    "@mag-system/eslint-config": "workspace:*",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.1.0",
     "@nestjs/testing": "^10.3.0",

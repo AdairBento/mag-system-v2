@@ -1,20 +1,7 @@
 module.exports = {
   root: true,
-  extends: ['@mag-system/eslint-config/base'],
-  parser: '@typescript-eslint/parser',
+  extends: ['@mag-system/eslint-config'],
   parserOptions: {
     project: './tsconfig.json',
-    tsconfigRootDir: __dirname,
   },
-  ignorePatterns: [
-    'dist',
-    'node_modules',
-    '.turbo',
-    '*.d.ts',
-    '*.js',
-    '*.js.map',
-    '**/__tests__/**',
-    '**/*.test.ts',
-    '**/*.spec.ts'
-  ],
 };
