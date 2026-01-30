@@ -3,7 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto, RegisterDto, AuthResponseDto } from '@mag-system/core';
-import { User } from '@prisma/client';
+
+type UserRole = 'ADMIN' | 'MANAGER' | 'OPERATOR';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +46,12 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private generateTokens(user: User): AuthResponseDto {
+  private generateTokens(user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  }): AuthResponseDto {
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
@@ -55,7 +61,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role: user.role as UserRole,
       },
     };
   }
