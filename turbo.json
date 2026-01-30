@@ -23,6 +23,10 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    "test:cov": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**", "apps/*/coverage/**"]
+    },
     "db:generate": {
       "cache": false,
       "outputs": ["node_modules/.prisma/**"]
