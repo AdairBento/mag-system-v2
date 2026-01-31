@@ -1,5 +1,6 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { DocumentType } from '@mag-system/shared-types';
 
 export class CreateClientDto {
   @ApiProperty({ example: 'João da Silva', description: 'Client full name' })
@@ -17,6 +18,14 @@ export class CreateClientDto {
   @ApiProperty({ example: '12345678900', description: 'CPF or CNPJ document number' })
   @IsString()
   document: string;
+
+  @ApiProperty({
+    enum: DocumentType,
+    example: DocumentType.CPF,
+    description: 'Document type'
+  })
+  @IsEnum(DocumentType)
+  documentType: DocumentType;
 
   @ApiProperty({ example: 'Rua Exemplo, 123', description: 'Street address', required: false })
   @IsString()
