@@ -1,25 +1,27 @@
-import { IsOptional, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsEnum } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ClientStatus, DocumentType } from '@mag-system/shared-types';
 
 export class FilterClientDto {
-  @ApiProperty({
-    example: 0,
-    description: 'Number of records to skip',
-    required: false,
-  })
+  @ApiPropertyOptional({ enum: ClientStatus, description: 'Filter by client status' })
   @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  skip?: number;
+  @IsEnum(ClientStatus)
+  status?: ClientStatus;
 
-  @ApiProperty({
-    example: 10,
-    description: 'Number of records to take',
-    required: false,
-  })
+  @ApiPropertyOptional({ enum: DocumentType, description: 'Filter by document type' })
   @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  take?: number;
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
+
+  @ApiPropertyOptional({ description: 'Search by name (partial match)' })
+  @IsOptional()
+  name?: string;
+
+  @ApiPropertyOptional({ description: 'Search by email (partial match)' })
+  @IsOptional()
+  email?: string;
+
+  @ApiPropertyOptional({ description: 'Search by document number' })
+  @IsOptional()
+  document?: string;
 }

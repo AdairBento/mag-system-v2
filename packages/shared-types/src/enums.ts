@@ -197,4 +197,8 @@ export enum ContractStatus {
   PENDING = 'PENDING',
   SIGNED = 'SIGNED',
   CANCELLED = 'CANCELLED',
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

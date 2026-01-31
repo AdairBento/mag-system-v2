@@ -1,8 +1,25 @@
-import { IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { IsOptional, IsEnum, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { RentalStatus } from '@mag-system/shared-types';
 
 export class FilterRentalDto {
-  @ApiProperty({ required: false }) @IsOptional() @Type(() => Number) skip?: number = 0;
-  @ApiProperty({ required: false }) @IsOptional() @Type(() => Number) take?: number = 10;
+  @ApiPropertyOptional({ enum: RentalStatus, description: 'Filter by rental status' })
+  @IsOptional()
+  @IsEnum(RentalStatus)
+  status?: RentalStatus;
+
+  @ApiPropertyOptional({ description: 'Filter by client ID' })
+  @IsOptional()
+  @IsString()
+  clientId?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by vehicle ID' })
+  @IsOptional()
+  @IsString()
+  vehicleId?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by driver ID' })
+  @IsOptional()
+  @IsString()
+  driverId?: string;
 }
