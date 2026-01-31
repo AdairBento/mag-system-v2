@@ -11,7 +11,7 @@ export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateClientDto): Promise<Client> {
-    return this.prisma.client.create({ data: dto as any });
+    return this.prisma.client.create({ data: dto });
   }
 
   async findAll(filter: FilterClientDto): Promise<PaginatedResult<Client>> {
@@ -35,7 +35,7 @@ export class ClientsService {
   }
 
   async update(id: string, dto: UpdateClientDto): Promise<Client> {
-    return this.prisma.client.update({ where: { id }, data: dto as any });
+    return this.prisma.client.update({ where: { id }, data: dto });
   }
 
   async remove(id: string): Promise<Client> {

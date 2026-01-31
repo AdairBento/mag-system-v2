@@ -11,7 +11,7 @@ export class DriversService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateDriverDto): Promise<Driver> {
-    return this.prisma.driver.create({ data: dto as any });
+    return this.prisma.driver.create({ data: dto });
   }
 
   async findAll(filter: FilterDriverDto): Promise<PaginatedResult<Driver>> {
@@ -35,7 +35,7 @@ export class DriversService {
   }
 
   async update(id: string, dto: UpdateDriverDto): Promise<Driver> {
-    return this.prisma.driver.update({ where: { id }, data: dto as any });
+    return this.prisma.driver.update({ where: { id }, data: dto });
   }
 
   async remove(id: string): Promise<Driver> {

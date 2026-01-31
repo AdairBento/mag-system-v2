@@ -11,7 +11,7 @@ export class RentalsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateRentalDto): Promise<Rental> {
-    return this.prisma.rental.create({ data: dto as any });
+    return this.prisma.rental.create({ data: dto });
   }
 
   async findAll(filter: FilterRentalDto): Promise<PaginatedResult<Rental>> {
@@ -35,7 +35,7 @@ export class RentalsService {
   }
 
   async update(id: string, dto: UpdateRentalDto): Promise<Rental> {
-    return this.prisma.rental.update({ where: { id }, data: dto as any });
+    return this.prisma.rental.update({ where: { id }, data: dto });
   }
 
   async remove(id: string): Promise<Rental> {

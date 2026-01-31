@@ -11,7 +11,7 @@ export class InspectionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateInspectionDto): Promise<Inspection> {
-    return this.prisma.inspection.create({ data: dto as any });
+    return this.prisma.inspection.create({ data: dto });
   }
 
   async findAll(filter: FilterInspectionDto): Promise<PaginatedResult<Inspection>> {
@@ -35,7 +35,7 @@ export class InspectionsService {
   }
 
   async update(id: string, dto: UpdateInspectionDto): Promise<Inspection> {
-    return this.prisma.inspection.update({ where: { id }, data: dto as any });
+    return this.prisma.inspection.update({ where: { id }, data: dto });
   }
 
   async remove(id: string): Promise<Inspection> {
