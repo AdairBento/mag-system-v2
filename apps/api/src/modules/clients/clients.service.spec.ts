@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientsService } from './clients.service';
 import { PrismaService } from '../../database/prisma.service';
+import { DocumentType } from '@mag-system/shared-types';
 
 describe('ClientsService', () => {
   let service: ClientsService;
