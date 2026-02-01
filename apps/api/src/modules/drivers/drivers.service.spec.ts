@@ -3,6 +3,7 @@ import { DriversService } from './drivers.service';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { FilterDriverDto } from './dto/filter-driver.dto';
+import { LicenseCategory } from '@mag-system/shared-types';
 
 describe('DriversService', () => {
   let service: DriversService;
