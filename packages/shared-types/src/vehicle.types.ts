@@ -5,32 +5,11 @@ export interface Vehicle {
   model: string;
   year: number;
   color: string;
-  registrationNumber: string;
-  chassis: string;
+  fuelType: string;
+  transmissionType: string;
+  category: string;
   dailyRate: number;
-  status: VehicleStatus;
+  status: string;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export enum VehicleStatus {
-  AVAILABLE = 'AVAILABLE',
-  RENTED = 'RENTED',
-  MAINTENANCE = 'MAINTENANCE',
-  INACTIVE = 'INACTIVE',
-}
-
-export interface CreateVehiclePayload {
-  plate: string;
-  brand: string;
-  model: string;
-  year: number;
-  color: string;
-  registrationNumber: string;
-  chassis: string;
-  dailyRate: number;
-}
-
-export interface UpdateVehiclePayload extends Partial<CreateVehiclePayload> {
-  status?: VehicleStatus;
 }
