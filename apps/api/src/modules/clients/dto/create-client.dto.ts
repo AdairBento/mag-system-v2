@@ -19,17 +19,10 @@ export class CreateClientDto {
   @IsString()
   document: string;
 
-<<<<<<< Updated upstream
   @ApiProperty({
     enum: DocumentType,
     example: DocumentType.CPF,
     description: 'Document type'
-=======
-  @ApiProperty({ 
-    enum: DocumentType, 
-    example: DocumentType.CPF, 
-    description: 'Document type' 
->>>>>>> Stashed changes
   })
   @IsEnum(DocumentType)
   documentType: DocumentType;

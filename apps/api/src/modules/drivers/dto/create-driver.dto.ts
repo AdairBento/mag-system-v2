@@ -23,13 +23,8 @@ export class CreateDriverDto {
   @IsString()
   licenseNumber: string;
 
-<<<<<<< Updated upstream
   @ApiProperty({
     enum: LicenseCategory,
-=======
-  @ApiProperty({ 
-    enum: LicenseCategory, 
->>>>>>> Stashed changes
     example: LicenseCategory.B,
     description: 'Driver license category'
   })
