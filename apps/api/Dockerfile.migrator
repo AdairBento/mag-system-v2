@@ -18,6 +18,9 @@ COPY packages/database/package.json ./packages/database/
 # Instalar incluindo devDependencies (prisma CLI)
 RUN pnpm install --frozen-lockfile --filter @mag-system/database...
 
+# Instalar Prisma CLI globalmente (evita problemas de symlink)
+RUN pnpm add -g prisma@5.22.0
+
 # Copiar schema e migrations
 COPY packages/database/prisma ./packages/database/prisma
 
@@ -25,5 +28,5 @@ COPY packages/database/prisma ./packages/database/prisma
 RUN test -f packages/database/prisma/schema.prisma || (echo "ERROR: schema.prisma not found!" && exit 1)
 RUN test -d packages/database/prisma/migrations || (echo "ERROR: migrations directory not found!" && exit 1)
 
-# Usar binário local do prisma com schema explícito
-CMD ["pnpm", "--filter", "@mag-system/database", "exec", "prisma", "migrate", "deploy", "--schema=packages/database/prisma/schema.prisma"]
+# Usar Prisma global com schema explícito
+CMD ["prisma", "migrate", "deploy", "--schema=packages/database/prisma/schema.prisma"]
