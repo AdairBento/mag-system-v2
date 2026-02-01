@@ -22,6 +22,10 @@ COPY apps/api ./apps/api
 # Isso permite que o Prisma Client seja gerado corretamente
 RUN pnpm install --frozen-lockfile
 
+# Gerar Prisma Client COM target correto para Alpine OpenSSL 3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS="linux-musl-openssl-3.0.x"
+RUN pnpm --filter @mag-system/database exec prisma generate
+
 # Build dos pacotes compartilhados
 RUN pnpm --filter @mag-system/database build
 RUN pnpm --filter @mag-system/shared-types build
@@ -61,12 +65,12 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/
 # Copiar schema do Prisma (necessário para migrations em runtime)
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 
+# Copiar Prisma Client gerado (com binaries corretos)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
 # Instalar APENAS dependências de produção (SEM scripts prepare/husky)
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
-
-# Gerar Prisma Client com OpenSSL 3.0.x (compatível com Alpine 20)
-ENV PRISMA_CLI_BINARY_TARGETS="linux-musl-openssl-3.0.x"
-RUN pnpm --filter @mag-system/database exec prisma generate
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
