@@ -35,9 +35,9 @@ RUN pnpm --filter @mag-system/api build
 FROM node:20-alpine AS production
 
 # Instalar dependências do sistema necessárias
-# - openssl1.1-compat: biblioteca SSL 1.1 (compatível com Prisma engines)
+# - openssl: biblioteca SSL (Alpine 20 tem openssl 3.5.5)
 # - wget: para healthcheck
-RUN apk add --no-cache openssl1.1-compat wget
+RUN apk add --no-cache openssl wget
 
 # Instalar pnpm
 RUN npm install -g pnpm@8.15.9
@@ -64,8 +64,8 @@ COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 # Instalar APENAS dependências de produção (SEM scripts prepare/husky)
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
-# Gerar Prisma Client com OpenSSL 1.1.x (compatível com Prisma engines)
-ENV PRISMA_CLI_BINARY_TARGETS="linux-musl-openssl-1.1.x"
+# Gerar Prisma Client com OpenSSL 3.0.x (compatível com Alpine 20)
+ENV PRISMA_CLI_BINARY_TARGETS="linux-musl-openssl-3.0.x"
 RUN pnpm --filter @mag-system/database exec prisma generate
 
 # Criar usuário não-root para segurança
