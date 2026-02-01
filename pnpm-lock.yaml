@@ -54,6 +54,9 @@ importers:
       '@mag-system/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@mag-system/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@nestjs/common':
         specifier: ^10.3.0
         version: 10.4.22(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
