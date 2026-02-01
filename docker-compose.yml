@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # Database
   postgres:
     image: postgres:16-alpine
     container_name: mag-system-db
@@ -18,7 +17,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - mag-network
 
+  # Cache
   redis:
     image: redis:7-alpine
     container_name: mag-system-redis
@@ -32,7 +34,43 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - mag-network
+
+  # API Backend
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: mag-system-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://mag_user:mag_password@postgres:5432/mag_system
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_EXPIRES_IN: 7d
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mag-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  mag-network:
+    driver: bridge
