@@ -1,12 +1,20 @@
-# Dependencies
+# Dependencies (CRITICAL: prevent Windows node_modules from polluting Docker)
 node_modules
+**/node_modules
+**/.pnpm-store
 .pnpm-store
+**/.pnp.*
+.pnp.*
 
 # Build outputs
 dist
+**/dist
 build
+**/build
 .next
 out
+**/.turbo
+.turbo
 
 # Logs
 logs
