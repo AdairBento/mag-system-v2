@@ -17,6 +17,7 @@
   "dependencies": {
     "@mag-system/core": "workspace:*",
     "@mag-system/database": "workspace:*",
+    "@mag-system/shared-types": "workspace:*",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.3.0",
