@@ -1,4 +1,4 @@
-import { IsOptional, IsEnum, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsEnum, IsInt, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { VehicleStatus, FuelType, VehicleCategory } from '@mag-system/shared-types';
 import { Type } from 'class-transformer';
