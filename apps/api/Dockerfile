@@ -34,8 +34,11 @@ RUN pnpm --filter @mag-system/api build
 # ================================
 FROM node:20-alpine AS production
 
-# Instalar pnpm e wget para healthcheck
-RUN npm install -g pnpm@8.15.9 && apk add --no-cache wget
+# Instalar OpenSSL 1.1 (necessário para Prisma) + wget para healthcheck
+RUN apk add --no-cache openssl1.1-compat wget
+
+# Instalar pnpm
+RUN npm install -g pnpm@8.15.9
 
 WORKDIR /app
 
@@ -56,8 +59,8 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/
 # Copiar schema do Prisma (necessário para migrations em runtime)
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 
-# Instalar APENAS dependências de produção
-RUN pnpm install --prod --frozen-lockfile
+# Instalar APENAS dependências de produção (SEM scripts prepare/husky)
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # Gerar Prisma Client no ambiente de produção
 RUN pnpm --filter @mag-system/database exec prisma generate
