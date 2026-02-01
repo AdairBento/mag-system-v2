@@ -1,6 +1,7 @@
-import { IsOptional, IsEnum, IsString } from 'class-validator';
+import { IsOptional, IsEnum, IsString, IsInt, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { InspectionType, InspectionStatus } from '@mag-system/shared-types';
+import { Type } from 'class-transformer';
 
 export class FilterInspectionDto {
   @ApiPropertyOptional({ enum: InspectionType, description: 'Filter by inspection type' })
@@ -22,4 +23,18 @@ export class FilterInspectionDto {
   @IsOptional()
   @IsString()
   vehicleId?: string;
+
+  @ApiPropertyOptional({ default: 0, description: 'Number of records to skip' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  skip?: number;
+
+  @ApiPropertyOptional({ default: 10, description: 'Number of records to take' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  take?: number;
 }
