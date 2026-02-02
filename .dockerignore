@@ -1,41 +1,43 @@
-# Dependencies (CRITICAL: prevent Windows node_modules from polluting Docker)
-node_modules
-**/node_modules
-**/.pnpm-store
-.pnpm-store
-**/.pnp.*
+# ===========================================
+# .dockerignore for pnpm monorepo
+# CRITICAL: Only exclude ROOT-level artifacts
+# ===========================================
+
+# ROOT node_modules (Windows dev artifacts)
+node_modules/
+.pnpm-store/
 .pnp.*
 
-# Build outputs
-dist
-**/dist
-build
-**/build
-.next
-out
-**/.turbo
-.turbo
+# ROOT build outputs (intermediários locais)
+dist/
+build/
+out/
+.next/
+.turbo/
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment
+# Environment (NEVER copy .env to Docker)
 .env
 .env.local
-.env.*.local
+.env*.local
 
 # Testing
-coverage
-.nyc_output
+coverage/
+.nyc_output/
+*.test.ts
+*.spec.ts
+__tests__/
 
 # IDE
-.vscode
-.idea
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
@@ -44,21 +46,27 @@ coverage
 .DS_Store
 Thumbs.db
 
-# Git
-.git
+# Git (não precisa dentro da imagem)
+.git/
 .gitignore
+.gitattributes
 
-# Documentation
+# Documentation (exceto README que pode ser útil)
 *.md
 !README.md
 
-# Docker
-Dockerfile
-docker-compose*.yml
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker (evita loops infinitos)
 .dockerignore
 
-# CI/CD
-.github
+# Husky hooks (não funcionam no container)
+.husky/
 
-# Misc
-.husky
+# Temp files
+*.tmp
+*.temp
+.cache/
