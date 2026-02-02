@@ -41,6 +41,23 @@ RUN pnpm --filter @mag-system/shared-types build
 RUN pnpm --filter @mag-system/database build
 RUN pnpm --filter @mag-system/core build
 
+# ================================
+# 🔍 DEBUG: Verificar workspace links ANTES do nest build
+# ================================
+RUN echo "\n=== DEBUG: Checking @mag-system/core resolution ==="
+RUN node -p "require.resolve('@mag-system/core/package.json')" || echo "❌ FAIL: core NOT resolvable"
+RUN echo "\n=== DEBUG: Core package.json ==="
+RUN node -p "JSON.stringify(require('@mag-system/core/package.json'), null, 2)" || echo "❌ FAIL: can't read core package.json"
+RUN echo "\n=== DEBUG: node_modules/@mag-system structure ==="
+RUN ls -la node_modules/@mag-system/ || echo "❌ FAIL: @mag-system not found"
+RUN echo "\n=== DEBUG: node_modules/@mag-system/core ==="
+RUN ls -la node_modules/@mag-system/core/ || echo "❌ FAIL: core not found"
+RUN echo "\n=== DEBUG: packages/core/dist ==="
+RUN ls -la packages/core/dist/ || echo "❌ FAIL: packages/core/dist not found"
+RUN echo "\n=== DEBUG: Check if dist/index.d.ts exists ==="
+RUN test -f packages/core/dist/index.d.ts && echo "✅ OK: index.d.ts exists" || echo "❌ FAIL: index.d.ts NOT found"
+RUN echo "\n=== END DEBUG ===\n"
+
 # Build da API com cadeia topológica
 RUN pnpm --filter @mag-system/api... build
 
