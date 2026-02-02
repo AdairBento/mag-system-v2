@@ -17,6 +17,9 @@ RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 # ================================
 FROM base AS build
 
+# 🔥 FORÇAR development mode (garante devDependencies)
+ENV NODE_ENV=development
+
 # Copiar arquivos de configuração (melhor cache)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
@@ -28,7 +31,16 @@ COPY packages/database/package.json ./packages/database/
 COPY packages/shared-types/package.json ./packages/shared-types/
 
 # Instalar TODAS dependências (incluindo devDependencies)
-RUN pnpm install --frozen-lockfile
+# --prod=false garante que devDeps são instaladas mesmo com variáveis de ambiente
+RUN pnpm install --frozen-lockfile --prod=false
+
+# 🔍 DEBUG: Verificar se Prisma foi instalado
+RUN echo "\n=== DEBUG: NODE_ENV ==="
+RUN node -p "process.env.NODE_ENV"
+RUN echo "\n=== DEBUG: Prisma binary location ==="
+RUN ls -la /app/packages/database/node_modules/prisma/build/ 2>&1 || echo "❌ packages/database/node_modules/prisma NOT found"
+RUN ls -la /app/node_modules/.pnpm/prisma*/node_modules/prisma/build/ 2>&1 | head -5 || echo "❌ .pnpm prisma NOT found"
+RUN echo "\n=== END PRISMA DEBUG ===\n"
 
 # Copiar código fonte completo
 COPY . .
