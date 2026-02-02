@@ -21,8 +21,9 @@ FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 
-# Copiar package.json dos workspaces
+# Copiar package.json dos workspaces (TODOS os packages usados)
 COPY apps/api/package.json ./apps/api/
+COPY packages/core/package.json ./packages/core/
 COPY packages/database/package.json ./packages/database/
 COPY packages/shared-types/package.json ./packages/shared-types/
 
@@ -38,6 +39,7 @@ RUN pnpm --filter @mag-system/database exec prisma generate --schema=./prisma/sc
 # Build EXPLÍCITO das dependências (ordem correta)
 RUN pnpm --filter @mag-system/shared-types build
 RUN pnpm --filter @mag-system/database build
+RUN pnpm --filter @mag-system/core build
 
 # Build da API com cadeia topológica
 RUN pnpm --filter @mag-system/api... build
