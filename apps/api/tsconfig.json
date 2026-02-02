@@ -19,9 +19,9 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./*"],
-      "@mag-system/core": ["../../packages/core/src"],
-      "@mag-system/database": ["../../packages/database/src"],
-      "@mag-system/shared-types": ["../../packages/shared-types/src"]
+      "@mag-system/core": ["../../packages/core/dist"],
+      "@mag-system/database": ["../../packages/database/dist"],
+      "@mag-system/shared-types": ["../../packages/shared-types/dist"]
     }
   },
   "include": ["src/**/*"],
