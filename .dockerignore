@@ -1,72 +1,33 @@
-# ===========================================
-# .dockerignore for pnpm monorepo
-# CRITICAL: Only exclude ROOT-level artifacts
-# ===========================================
+# deps
+node_modules
+**/node_modules
+.pnpm-store
+**/.pnpm
 
-# ROOT node_modules (Windows dev artifacts)
-node_modules/
-.pnpm-store/
-.pnp.*
+# build caches/outputs
+dist
+**/dist
+build
+**/build
+.turbo
+**/.turbo
+.next
+**/.next
+out
 
-# ROOT build outputs (intermediários locais)
-dist/
-build/
-out/
-.next/
-.turbo/
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment (NEVER copy .env to Docker)
+# env
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
 
-# Testing
-coverage/
-.nyc_output/
-*.test.ts
-*.spec.ts
-__tests__/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+# git/ide/os
+.git
+**/.git
+.vscode
+.idea
 .DS_Store
 Thumbs.db
 
-# Git (não precisa dentro da imagem)
-.git/
-.gitignore
-.gitattributes
-
-# Documentation (exceto README que pode ser útil)
-*.md
-!README.md
-
-# CI/CD
-.github/
-.gitlab-ci.yml
-.travis.yml
-
-# Docker (evita loops infinitos)
-.dockerignore
-
-# Husky hooks (não funcionam no container)
-.husky/
-
-# Temp files
-*.tmp
-*.temp
-.cache/
+# logs
+*.log
+debug-output.txt
