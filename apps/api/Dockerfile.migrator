@@ -25,5 +25,5 @@ COPY packages/database/prisma ./packages/database/prisma
 RUN test -f packages/database/prisma/schema.prisma || (echo "ERROR: schema.prisma not found!" && exit 1)
 RUN test -d packages/database/prisma/migrations || (echo "ERROR: migrations directory not found!" && exit 1)
 
-# Usar npx prisma (mais confiável que pnpm global)
-CMD ["npx", "prisma", "migrate", "deploy", "--schema=packages/database/prisma/schema.prisma"]
+# Usar pnpm exec prisma (resolve workspace binários corretamente)
+CMD ["pnpm", "exec", "prisma", "migrate", "deploy", "--schema=packages/database/prisma/schema.prisma"]
