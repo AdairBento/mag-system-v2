@@ -47,6 +47,21 @@ COPY . .
 # Gerar Prisma Client usando npx (resolve binários automaticamente)
 RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
 
+# 🔍 DEBUG: Verificar dependências do core ANTES do build
+RUN echo "\n=== DEBUG: Core dependencies check ==="
+RUN echo "Checking packages/core/node_modules:"
+RUN ls -la /app/packages/core/node_modules/ 2>&1 | head -10 || echo "❌ packages/core/node_modules NOT found"
+RUN echo "\nChecking if class-validator is installed:"
+RUN test -d /app/packages/core/node_modules/class-validator && echo "✅ class-validator found" || echo "❌ class-validator NOT found"
+RUN test -d /app/node_modules/.pnpm/node_modules/class-validator && echo "✅ class-validator in .pnpm" || echo "❌ class-validator NOT in .pnpm"
+RUN echo "\nChecking if zod is installed:"
+RUN test -d /app/packages/core/node_modules/zod && echo "✅ zod found" || echo "❌ zod NOT found"
+RUN test -d /app/node_modules/.pnpm/node_modules/zod && echo "✅ zod in .pnpm" || echo "❌ zod NOT in .pnpm"
+RUN echo "\nChecking if date-fns is installed:"
+RUN test -d /app/packages/core/node_modules/date-fns && echo "✅ date-fns found" || echo "❌ date-fns NOT found"
+RUN test -d /app/node_modules/.pnpm/node_modules/date-fns && echo "✅ date-fns in .pnpm" || echo "❌ date-fns NOT in .pnpm"
+RUN echo "\n=== END CORE DEPS DEBUG ===\n"
+
 # Build EXPLÍCITO das dependências (ordem correta)
 RUN pnpm --filter @mag-system/shared-types build
 RUN pnpm --filter @mag-system/database build
