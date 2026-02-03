@@ -30,9 +30,8 @@ COPY packages/core/package.json ./packages/core/
 COPY packages/database/package.json ./packages/database/
 COPY packages/shared-types/package.json ./packages/shared-types/
 
-# Instalar TODAS dependências (incluindo devDependencies)
-# --prod=false garante que devDeps são instaladas mesmo com variáveis de ambiente
-RUN pnpm install --frozen-lockfile --prod=false
+# Instalar TODAS dependências (NODE_ENV=development já garante devDeps)
+RUN pnpm install --frozen-lockfile
 
 # 🔍 DEBUG: Verificar se Prisma foi instalado
 RUN echo "\n=== DEBUG: NODE_ENV ==="
