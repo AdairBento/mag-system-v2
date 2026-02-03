@@ -1,0 +1,4 @@
+# Docker-specific pnpm configuration
+# Use hoisted node-linker to avoid broken Windows symlinks in Linux containers
+node-linker=hoisted
+shamefully-hoist=true
