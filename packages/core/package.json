@@ -4,12 +4,12 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts --ignore-pattern __tests__ --ignore-pattern *.test.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "npx tsc --noEmit"
   },
   "dependencies": {
     "class-transformer": "^0.5.1",
