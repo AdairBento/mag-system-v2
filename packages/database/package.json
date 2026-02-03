@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "prisma/schema.prisma"
+  ],
   "scripts": {
     "build": "npx prisma generate && npx tsc",
     "prisma:generate": "npx prisma generate",
