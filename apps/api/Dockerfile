@@ -45,8 +45,8 @@ RUN echo "\n=== END PRISMA DEBUG ===\n"
 # Copiar código fonte completo
 COPY . .
 
-# Gerar Prisma Client usando workspace root (padrão profissional monorepo)
-RUN pnpm -w exec prisma generate --schema=packages/database/prisma/schema.prisma
+# Gerar Prisma Client usando npx (resolve binários automaticamente)
+RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
 
 # Build EXPLÍCITO das dependências (ordem correta)
 RUN pnpm --filter @mag-system/shared-types build
