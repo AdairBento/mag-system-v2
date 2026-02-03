@@ -273,13 +273,13 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1
       class-validator:
-        specifier: ^0.14.1
+        specifier: ^0.14.3
         version: 0.14.3
       date-fns:
-        specifier: ^3.0.6
+        specifier: ^3.6.0
         version: 3.6.0
       zod:
-        specifier: ^3.22.4
+        specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
       '@mag-system/eslint-config':
