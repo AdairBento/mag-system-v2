@@ -86,9 +86,29 @@ RUN test -f packages/core/dist/index.d.ts && echo "✅ index.d.ts STILL EXISTS a
 # Deploy production bundle isolado
 RUN pnpm --filter @mag-system/api deploy --prod /out
 
+# 🔧 FIX: pnpm deploy não respeita "files" - copiar dist manualmente
+RUN echo "\n=== Copying workspace dist folders to bundle ==="
+RUN mkdir -p /out/node_modules/@mag-system/core/dist \
+ && cp -r /app/packages/core/dist/* /out/node_modules/@mag-system/core/dist/ \
+ && echo "✅ Copied @mag-system/core/dist"
+
+RUN mkdir -p /out/node_modules/@mag-system/database/dist \
+ && cp -r /app/packages/database/dist/* /out/node_modules/@mag-system/database/dist/ \
+ && echo "✅ Copied @mag-system/database/dist"
+
+RUN mkdir -p /out/node_modules/@mag-system/shared-types/dist \
+ && cp -r /app/packages/shared-types/dist/* /out/node_modules/@mag-system/shared-types/dist/ \
+ && echo "✅ Copied @mag-system/shared-types/dist"
+
+# Copiar schema.prisma para o bundle (necessário para runtime)
+RUN mkdir -p /out/node_modules/@mag-system/database/prisma \
+ && cp /app/packages/database/prisma/schema.prisma /out/node_modules/@mag-system/database/prisma/ \
+ && echo "✅ Copied schema.prisma"
+
 # Sanity checks - garantem que bundle está correto
 RUN test -f /out/dist/main.js || (echo "ERROR: /out/dist/main.js not found!" && exit 1)
 RUN test -f /out/node_modules/@mag-system/database/dist/index.js || (echo "ERROR: database dist missing in bundle!" && exit 1)
+RUN test -f /out/node_modules/@mag-system/core/dist/index.js || (echo "ERROR: core dist missing in bundle!" && exit 1)
 
 # ================================
 # Runtime - Produção
