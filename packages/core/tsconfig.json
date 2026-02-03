@@ -6,6 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
+    "composite": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false
