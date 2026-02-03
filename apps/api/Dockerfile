@@ -24,6 +24,9 @@ ENV NODE_ENV=development
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 
+# 🐞 FIX: Usar .npmrc específico para Docker (evita symlinks quebrados do Windows)
+COPY .npmrc.docker .npmrc
+
 # Copiar package.json dos workspaces (TODOS os packages usados)
 COPY apps/api/package.json ./apps/api/
 COPY packages/core/package.json ./packages/core/
