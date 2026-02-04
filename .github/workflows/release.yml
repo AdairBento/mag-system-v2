@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 💻 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔵 Generate Prisma Client
+        run: pnpm --filter @mag-system/database prisma generate
+
+      - name: 🧪 Run tests
+        run: pnpm test:cov
+
+      - name: 🛠️ Build packages
+        run: pnpm build
+
+      - name: 📝 Extract release notes
+        id: extract_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Extract notes from CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            NOTES=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
+            echo "$NOTES" > release_notes.md
+          else
+            echo "Release $VERSION" > release_notes.md
+          fi
+
+      - name: 🎯 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✅ Release created
+        run: |
+          echo "✅ Release v${{ steps.extract_notes.outputs.version }} created successfully!"
+          echo "View at: https://github.com/${{ github.repository }}/releases/tag/${GITHUB_REF#refs/tags/}"
