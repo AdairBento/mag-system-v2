@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Menu, Search } from "lucide-react";
+import { Menu, Search } from 'lucide-react';
 
 type TopbarProps = {
   onMenuClick?: () => void;

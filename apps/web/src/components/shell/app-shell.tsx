@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { ReactNode, useState } from "react";
-import { SidebarNav } from "./sidebar-nav";
-import { Topbar } from "./topbar";
+import { ReactNode, useState } from 'react';
+import { SidebarNav } from './sidebar-nav';
+import { Topbar } from './topbar';
 
 type AppShellProps = { children: ReactNode };
 

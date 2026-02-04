@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { AppShell } from "@/components/shell/app-shell";
+import { ReactNode } from 'react';
+import { AppShell } from '@/components/shell/app-shell';
 
 type AppLayoutProps = {
   children: ReactNode;
