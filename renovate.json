@@ -1,0 +1,60 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "packageRules": [
+    {
+      "groupName": "NestJS packages",
+      "matchPackagePatterns": ["^@nestjs/"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "groupName": "Next.js and React",
+      "matchPackagePatterns": ["^next$", "^react"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "groupName": "Prisma",
+      "matchPackagePatterns": ["^@prisma/", "^prisma$"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "groupName": "TypeScript and types",
+      "matchPackagePatterns": ["^typescript$", "^@types/"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "groupName": "ESLint and Prettier",
+      "matchPackagePatterns": ["^eslint", "^prettier"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "groupName": "Testing libraries",
+      "matchPackagePatterns": ["^jest", "^@testing-library/"],
+      "schedule": ["before 3am on Monday"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "labels": ["breaking-change"],
+      "automerge": false
+    }
+  ],
+  "rangeStrategy": "bump",
+  "separateMajorMinor": true,
+  "timezone": "America/Sao_Paulo",
+  "schedule": ["before 3am on Monday"],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": ["@AdairBento"]
+  },
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "labels": ["dependencies"],
+  "assignees": ["@AdairBento"],
+  "reviewers": ["@AdairBento"]
+}
