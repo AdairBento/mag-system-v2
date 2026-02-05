@@ -1,3 +1,5 @@
+# [2.0.0](https://github.com/AdairBento/mag-system-v2/compare/v1.0.0-beta.1...v2.0.0) (2026-02-05)
+
 # Changelog
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
@@ -8,6 +10,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Unreleased]
 
 ### Planejado
+
 - E2E tests com Playwright
 - Módulos de Drivers e Vehicles
 - Dashboard com gráficos
@@ -20,23 +23,27 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### ✨ Added (Novidades)
 
 #### Infraestrutura Profissional
+
 - 🔄 **CI/CD Completo**: Pipeline com 5 jobs paralelos (lint, type-check, test, build, quality-gate)
 - 🤖 **Renovate Bot**: Automação de updates de dependências
 - 📈 **Codecov Integration**: Cobertura de testes automática
 - 🚀 **Release Workflow**: Automação de releases via tags
 
 #### Documentação
+
 - 🤝 **CONTRIBUTING.md**: Guia completo de contribuição (workflow, commits, testes)
 - 🛡️ **SECURITY.md**: Política de segurança com processo de reporte
 - 📝 **CHANGELOG.md**: Histórico de versões
 - 🔒 **Branch Protection Guide**: Instruções para configurar proteções
 
 #### Templates GitHub
+
 - 🐛 **Bug Report Template**: Estrutura para reportar bugs
 - ✨ **Feature Request Template**: Template para novas funcionalidades
 - 🔄 **Pull Request Template**: Checklist profissional para PRs
 
 #### Backend (NestJS)
+
 - ✅ **Auth Module**: JWT authentication com refresh tokens
 - ✅ **Clients Module**: CRUD completo de clientes (PF/PJ)
 - ✅ **User Module**: Gestão de usuários do sistema
@@ -44,6 +51,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - 🛡️ **Security**: Helmet, CORS, Rate Limiting
 
 #### Packages (@mag-system)
+
 - 📦 **@mag-system/core**: 56 componentes (validators, DTOs, utils, errors)
   - 15 Validators Zod
   - 24 DTOs
@@ -57,6 +65,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - 📘 **@mag-system/shared-types**: TypeScript types compartilhados
 
 #### Frontend (Next.js 14)
+
 - 🎨 **AppShell Layout**: Layout responsivo com sidebar
 - 📄 **Dashboard Page**: Página inicial do sistema
 - 🧱 **Navigation System**: Menu lateral estruturado
@@ -64,16 +73,19 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - 🎨 **shadcn/ui**: Componentes UI profissionais
 
 ### 🔨 Changed (Mudanças)
+
 - 📝 **README.md**: Adicionados 10 badges profissionais
 - ⬆️ **Dependencies**: Atualização para versões mais recentes
 - 📁 **Project Structure**: Organização em monorepo com Turborepo
 
 ### 🔧 Fixed (Correções)
+
 - ✅ **CI Jobs**: Corrigidos workflows que falhavam
 - 🔵 **Prisma Generate**: Adicionado em todos os workflows
 - 📝 **Type Safety**: Correções de tipos TypeScript
 
 ### 🛡️ Security (Segurança)
+
 - 🔐 **JWT**: Implementação segura de autenticação
 - 🛡️ **Input Validation**: Zod em todas as entradas
 - 🔒 **Environment Variables**: Gestão segura de secrets
@@ -82,12 +94,14 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### 📊 Technical Details
 
 **Stack:**
+
 - Backend: NestJS 10.x + Prisma ORM + PostgreSQL 14+
 - Frontend: Next.js 14.x + React Query + Tailwind CSS
 - DevOps: Turborepo + pnpm + Docker + GitHub Actions
 - Testing: Jest + Supertest + Codecov
 
 **Metrics:**
+
 - 24 Módulos NestJS
 - 22 Prisma Models
 - 13 Páginas Next.js
@@ -100,6 +114,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [1.0.0] - 2025-12-15
 
 ### ✨ Added
+
 - 🏁 Versão inicial do projeto
 - 📚 Setup básico do monorepo
 - ⚙️ Configuração de Turborepo
