@@ -52,7 +52,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 🔵 Generate Prisma Client
-        run: pnpm --filter @mag-system/database prisma generate
+        run: pnpm --filter @mag-system/database exec prisma generate
 
       - name: 📘 TypeScript Check
         run: pnpm type-check || echo "Add type-check script to package.json"
@@ -78,7 +78,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 🔵 Generate Prisma Client
-        run: pnpm --filter @mag-system/database prisma generate
+        run: pnpm --filter @mag-system/database exec prisma generate
 
       - name: 🧪 Run tests with coverage
         run: pnpm test:cov
@@ -115,7 +115,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 🔵 Generate Prisma Client
-        run: pnpm --filter @mag-system/database prisma generate
+        run: pnpm --filter @mag-system/database exec prisma generate
 
       - name: 📦 Build all packages
         run: pnpm build
