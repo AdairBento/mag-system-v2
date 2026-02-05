@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/AdairBento/mag-system-v2/compare/v2.1.2...v2.1.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** add type-check script and build packages before validation ([2c3233e](https://github.com/AdairBento/mag-system-v2/commit/2c3233e915e4ea19a7ec4b9cf975d1d549781ee3))
+
 ## [2.1.2](https://github.com/AdairBento/mag-system-v2/compare/v2.1.1...v2.1.2) (2026-02-05)
 
 
