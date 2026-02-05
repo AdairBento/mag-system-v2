@@ -56,7 +56,7 @@ jobs:
         run: pnpm --filter @mag-system/database exec prisma generate
 
       - name: 🏗️ Build packages (generate types)
-        run: pnpm -r --filter @mag-system/core --filter @mag-system/database build
+        run: pnpm -r --filter @mag-system/shared-types --filter @mag-system/core --filter @mag-system/database build
 
       - name: 📘 TypeScript Check
         run: pnpm type-check
