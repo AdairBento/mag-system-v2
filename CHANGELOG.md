@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/AdairBento/mag-system-v2/compare/v2.1.3...v2.1.4) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** add @mag-system/shared-types to build step ([9d65ebb](https://github.com/AdairBento/mag-system-v2/commit/9d65ebb783835d1022a864fa960fe3e656c72301))
+
 ## [2.1.3](https://github.com/AdairBento/mag-system-v2/compare/v2.1.2...v2.1.3) (2026-02-05)
 
 
