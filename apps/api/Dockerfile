@@ -1,7 +1,7 @@
 # ================================
 # Base - Debian Bookworm Slim
 # ================================
-FROM node:20-bookworm-slim AS base
+FROM node:20.20.0-bookworm-slim AS base
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
