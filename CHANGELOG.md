@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/AdairBento/mag-system-v2/compare/v2.1.1...v2.1.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** use 'pnpm exec prisma generate' instead of 'pnpm prisma generate' ([d537d40](https://github.com/AdairBento/mag-system-v2/commit/d537d407d494f9b6d33cfef83331cc3f2df3813c))
+
 ## [2.1.1](https://github.com/AdairBento/mag-system-v2/compare/v2.1.0...v2.1.1) (2026-02-05)
 
 
