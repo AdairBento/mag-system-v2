@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/AdairBento/mag-system-v2/compare/v2.1.0...v2.1.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** use Node 22.14.0 and pnpm from packageManager ([5ee3b89](https://github.com/AdairBento/mag-system-v2/commit/5ee3b890b421afbc762819979b1bbcdc30da1499))
+
 # [2.1.0](https://github.com/AdairBento/mag-system-v2/compare/v2.0.0...v2.1.0) (2026-02-05)
 
 
