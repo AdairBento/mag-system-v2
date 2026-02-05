@@ -55,9 +55,9 @@
     "node": ">=22.14.0",
     "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@8.15.0",
   "dependencies": {
     "@nestjs/swagger": "^7.4.2",
     "swagger-ui-express": "5.0.1"
-  }
+  },
+  "packageManager": "pnpm@10.10.7"
 }
