@@ -19,13 +19,13 @@
     "seed": "npx tsx prisma/seed/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.8.0"
+    "@prisma/client": "^5.22.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "@mag-system/eslint-config": "workspace:*",
-    "prisma": "^5.8.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "prisma": "^5.22.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
