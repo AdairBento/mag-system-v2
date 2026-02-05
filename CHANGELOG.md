@@ -1,3 +1,18 @@
+# [2.1.0](https://github.com/AdairBento/mag-system-v2/compare/v2.0.0...v2.1.0) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** remove pnpm version conflicts and upgrade to action-setup@v4 ([fbcaf54](https://github.com/AdairBento/mag-system-v2/commit/fbcaf54dab7b2c4fd5bbf7e4df2eda6e793bdf94))
+* **ci:** upgrade pnpm/action-setup to v4 and use packageManager from package.json ([4e02347](https://github.com/AdairBento/mag-system-v2/commit/4e023475a3e73693671f5a23a180afebcbd57930))
+* correct semantic-release configuration ([dc2b974](https://github.com/AdairBento/mag-system-v2/commit/dc2b974340059b00194accc467ccf4d84c16677e))
+* **deps:** update all non-major dependencies ([#3](https://github.com/AdairBento/mag-system-v2/issues/3)) ([beed613](https://github.com/AdairBento/mag-system-v2/commit/beed6130cc2a96f65f41d4945a75c86f87d56ec6))
+
+
+### Features
+
+* add test file for semantic-release validation ([3ade3dd](https://github.com/AdairBento/mag-system-v2/commit/3ade3dd47324d8b0f258d59e02c7814805354734))
+
 # [2.0.0](https://github.com/AdairBento/mag-system-v2/compare/v1.0.0-beta.1...v2.0.0) (2026-02-05)
 
 # Changelog
