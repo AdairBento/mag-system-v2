@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main, develop]
 
-
 jobs:
   lint:
     name: 🧹 Lint
@@ -19,6 +18,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           run_install: false
+          
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -42,6 +42,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           run_install: false
+          
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -54,8 +55,11 @@ jobs:
       - name: 🔵 Generate Prisma Client
         run: pnpm --filter @mag-system/database exec prisma generate
 
+      - name: 🏗️ Build packages (generate types)
+        run: pnpm -r --filter @mag-system/core --filter @mag-system/database build
+
       - name: 📘 TypeScript Check
-        run: pnpm type-check || echo "Add type-check script to package.json"
+        run: pnpm type-check
 
   test:
     name: 🧪 Test & Coverage
@@ -68,6 +72,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           run_install: false
+          
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -105,6 +110,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           run_install: false
+          
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
         with:

@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "npx prisma generate && npx tsc",
+    "type-check": "npx tsc --noEmit",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:studio": "npx prisma studio",
