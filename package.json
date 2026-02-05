@@ -25,18 +25,24 @@
     "db:reset": "cd packages/database && pnpm prisma migrate reset",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky",
-    "test:cov": "turbo run test:cov"
+    "test:cov": "turbo run test:cov",
+    "release": "semantic-release",
+    "release:dry": "semantic-release --dry-run",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
     "@nestjs/testing": "^10.3.0",
     "@prisma/client": "5.22.0",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/git": "10.0.1",
     "@types/supertest": "6.0.3",
     "husky": "^8.0.3",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "prisma": "5.22.0",
+    "semantic-release": "25.0.3",
     "supertest": "7.2.2",
     "turbo": "^2.8.0",
     "typescript": "^5.9.3"
