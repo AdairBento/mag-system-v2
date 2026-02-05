@@ -1,6 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
+  "platformAutomerge": true,
+  "automerge": true,
+  "automergeType": "pr",
   "packageRules": [
     {
       "groupName": "NestJS packages",
@@ -36,12 +39,15 @@
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
-      "automerge": false
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
       "matchUpdateTypes": ["major"],
       "labels": ["breaking-change"],
-      "automerge": false
+      "automerge": false,
+      "dependencyDashboardApproval": true
     }
   ],
   "rangeStrategy": "bump",
