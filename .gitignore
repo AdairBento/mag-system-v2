@@ -54,3 +54,6 @@ pnpm-debug.log*
 .eslintcache
 *.tsbuildinfo
 .prisma/
+
+# Test environment files
+.env.test
