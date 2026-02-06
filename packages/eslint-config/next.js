@@ -1,11 +1,10 @@
-module.exports = {
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config({
+  files: ['**/*.ts', '**/*.tsx'],
   extends: [
-    './base.js',
-    'next/core-web-vitals',
-    'plugin:@typescript-eslint/recommended',
+    ...tseslint.configs.recommended,
   ],
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
   rules: {
     '@typescript-eslint/no-unused-vars': [
       'warn',
@@ -16,4 +15,4 @@ module.exports = {
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
   },
-};
+});
