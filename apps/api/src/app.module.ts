@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { DatabaseModule } from './database/prisma.module';
@@ -10,6 +10,7 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { RentalsModule } from './modules/rentals/rentals.module';
 import { InspectionsModule } from './modules/inspections/inspections.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
   imports: [
@@ -33,4 +34,8 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestIdMiddleware).forRoutes('*');
+  }
+}
