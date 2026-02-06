@@ -14,7 +14,7 @@ import {
   isValidCPF,
   isValidCNPJ,
   normalizeDocument,
-} from '@mag-system/core/validators/document.validator';
+} from '@mag-system/core';
 
 /**
  * Service de Clientes com validações de negócio
