@@ -66,6 +66,10 @@ export class RentalsService {
       where: { id: dto.vehicleId },
     });
 
+    if (!vehicle) {
+      throw new NotFoundException('Veículo não encontrado');
+    }
+
     const totalDays = this.calculateDays(dto.startDate, dto.endDate);
     const dailyRate = vehicle.dailyRate;
     const subtotal = Number(dailyRate) * totalDays;
@@ -224,7 +228,6 @@ export class RentalsService {
       total,
       page,
       pageSize: limit,
-      totalPages: Math.ceil(total / limit),
     };
   }
 
