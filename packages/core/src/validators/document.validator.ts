@@ -110,26 +110,3 @@ export function isValidDocument(document: string): boolean {
 export function normalizeDocument(document: string): string {
   return document.replace(/\D/g, '');
 }
-
-/**
- * Formata CPF (###.###.###-##)
- * @param cpf - CPF sem máscara
- * @returns CPF formatado
- */
-export function formatCPF(cpf: string): string {
-  const cleanCPF = cpf.replace(/\D/g, '');
-  return cleanCPF.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-}
-
-/**
- * Formata CNPJ (##.###.###/####-##)
- * @param cnpj - CNPJ sem máscara
- * @returns CNPJ formatado
- */
-export function formatCNPJ(cnpj: string): string {
-  const cleanCNPJ = cnpj.replace(/\D/g, '');
-  return cleanCNPJ.replace(
-    /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-    '$1.$2.$3/$4-$5',
-  );
-}
