@@ -7,6 +7,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1",
     "^@mag-system/core$": "<rootDir>/../../packages/core/src",
     "^@mag-system/database$": "<rootDir>/../../packages/database/src"
   },
