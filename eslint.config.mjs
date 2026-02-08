@@ -2,7 +2,18 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    files: ['packages/**/*.ts', 'packages/**/*.tsx'],
+    // Ignorar arquivos gerados / caches
+    ignores: [
+      '**/.next/**',
+      '**/dist/**',
+      '**/coverage/**',
+      '**/.turbo/**',
+      '**/build/**',
+      '**/node_modules/**',
+    ],
+  },
+  {
+    files: ['packages/**/*.{ts,tsx}', 'apps/**/*.{ts,tsx}'],
     extends: [
       ...tseslint.configs.recommended,
     ],
