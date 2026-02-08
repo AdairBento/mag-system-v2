@@ -6,10 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "test": "echo \"No tests configured for web app\" && exit 0",
     "test:cov": "echo \"No tests configured for web app\" && exit 0",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "next lint"
   },
   "dependencies": {
     "@mag-system/core": "workspace:*",

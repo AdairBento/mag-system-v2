@@ -13,7 +13,6 @@
     "build": "turbo run build",
     "build:api": "turbo run build --filter=@mag-system/api",
     "build:web": "turbo run build --filter=@mag-system/web",
-    "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
@@ -28,7 +27,8 @@
     "test:cov": "turbo run test:cov",
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "lint": "eslint \"packages/**/*.{ts,tsx}\" \"apps/api/**/*.{ts,tsx}\" --max-warnings=0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
@@ -42,8 +42,6 @@
     "@semantic-release/npm": "13.1.3",
     "@semantic-release/release-notes-generator": "14.1.0",
     "@types/supertest": "6.0.3",
-    "@typescript-eslint/eslint-plugin": "8.54.0",
-    "@typescript-eslint/parser": "8.54.0",
     "husky": "^8.0.3",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
@@ -52,7 +50,10 @@
     "supertest": "7.2.2",
     "turbo": "^2.8.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0"
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0"
   },
   "engines": {
     "node": ">=22.14.0",

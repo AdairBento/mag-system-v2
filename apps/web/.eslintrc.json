@@ -1,7 +1,3 @@
 {
-  "root": true,
-  "extends": ["@mag-system/eslint-config/next"],
-  "parserOptions": {
-    "project": "./tsconfig.json"
-  }
+  "extends": ["next/core-web-vitals", "next/typescript"]
 }
