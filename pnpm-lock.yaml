@@ -251,9 +251,6 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.8.2))
     devDependencies:
-      '@mag-system/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
       '@types/node':
         specifier: ^20.19.31
         version: 20.19.33
