@@ -54,3 +54,7 @@ pnpm-debug.log*
 .eslintcache
 *.tsbuildinfo
 .prisma/
+
+# backups locais gerados por scripts
+packages/**/package.json.backup-*
+
