@@ -15,7 +15,7 @@ export class CpfValidator {
     if (cpf.length !== 11) return false;
     if (/^(\d)\1{10}$/.test(cpf)) return false;
 
-    const calcDigit = (base: string, factor: number) => {
+    const calcDigit = (base: string, factor: number): number => {
       let sum = 0;
       for (let i = 0; i < base.length; i++) {
         sum += Number(base[i]) * (factor - i);
