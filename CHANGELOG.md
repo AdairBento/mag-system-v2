@@ -1,3 +1,13 @@
+# [2.2.0](https://github.com/AdairBento/mag-system-v2/compare/v2.1.5...v2.2.0) (2026-02-09)
+
+### Bug Fixes
+
+- **turbo:** remove test outputs to fix cache warning ([#29](https://github.com/AdairBento/mag-system-v2/issues/29)) ([3bbfca9](https://github.com/AdairBento/mag-system-v2/commit/3bbfca951fe19c1b04a84d8bccca81d9f4b49caf)), closes [#26](https://github.com/AdairBento/mag-system-v2/issues/26)
+
+### Features
+
+- **core:** add CnhValidator with full coverage ([#28](https://github.com/AdairBento/mag-system-v2/issues/28)) ([5beee24](https://github.com/AdairBento/mag-system-v2/commit/5beee242c69e6629d35330dec2fd4044bb34bca1)), closes [#13](https://github.com/AdairBento/mag-system-v2/issues/13) [#27](https://github.com/AdairBento/mag-system-v2/issues/27)
+
 ## [2.1.5](https://github.com/AdairBento/mag-system-v2/compare/v2.1.4...v2.1.5) (2026-02-08)
 
 ### Bug Fixes
