@@ -2,7 +2,6 @@ module.exports = {
   extends: [
     './base.js',
     'next/core-web-vitals',
-    'plugin:@typescript-eslint/recommended',
   ],
   rules: {
     '@typescript-eslint/no-unused-vars': [
