@@ -1,3 +1,14 @@
+# [2.3.0](https://github.com/AdairBento/mag-system-v2/compare/v2.2.0...v2.3.0) (2026-02-09)
+
+### Bug Fixes
+
+- **eslint-config:** remove duplicate [@typescript-eslint](https://github.com/typescript-eslint) declarations ([#32](https://github.com/AdairBento/mag-system-v2/issues/32)) ([7af5ee6](https://github.com/AdairBento/mag-system-v2/commit/7af5ee603fcb766d7c76dfaadd3f3970409eb023))
+- upgrade packages to ESLint 9 and [@typescript-eslint](https://github.com/typescript-eslint) v8 ([#30](https://github.com/AdairBento/mag-system-v2/issues/30)) ([daae6c6](https://github.com/AdairBento/mag-system-v2/commit/daae6c68c2e1618a7ecf9d8757b791013816c855))
+
+### Features
+
+- **core:** add CpfValidator with full coverage ([#33](https://github.com/AdairBento/mag-system-v2/issues/33)) ([6134926](https://github.com/AdairBento/mag-system-v2/commit/6134926c01d8f9d69fb97e4597ab2aae5291a2b2))
+
 # [2.2.0](https://github.com/AdairBento/mag-system-v2/compare/v2.1.5...v2.2.0) (2026-02-09)
 
 ### Bug Fixes
