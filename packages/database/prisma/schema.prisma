@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // Dica: evitar "output" costuma dar menos dor de cabeça em monorepo/deploy
 }
 
 datasource db {
@@ -60,6 +59,7 @@ model Client {
   // Relations
   rentals      Rental[]
   invoices     Invoice[]
+  drivers      Driver[]     // ✅ NOVO: Cliente PJ pode ter motoristas
 
   @@index([status])
   @@index([documentType])
@@ -83,6 +83,7 @@ enum ClientStatus {
 
 model Driver {
   id               String          @id @default(uuid()) @db.Uuid
+  clientId         String?         @map("client_id") @db.Uuid // ✅ NOVO: Vínculo com Cliente PJ
   name             String
   email            String          @unique
   phone            String
@@ -99,9 +100,11 @@ model Driver {
   updatedAt        DateTime        @updatedAt @map("updated_at")
 
   // Relations
+  client           Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull) // ✅ NOVO
   rentals          Rental[]
   fines            Fine[]
 
+  @@index([clientId]) // ✅ NOVO
   @@index([status])
   @@index([licenseExpiresAt])
   @@map("drivers")
@@ -114,6 +117,9 @@ enum LicenseCategory {
   C
   D
   E
+  AC  // ✅ NOVO: Categorias combinadas
+  AD  // ✅ NOVO
+  AE  // ✅ NOVO
 }
 
 enum DriverStatus {
@@ -288,9 +294,7 @@ model Inspection {
   damages   Damage[]
   photos    InspectionPhoto[]
 
-  // Garante 1 vistoria PICKUP e 1 RETURN por locação (se for a regra do seu negócio)
   @@unique([rentalId, type])
-
   @@index([rentalId])
   @@index([vehicleId])
   @@index([status])
