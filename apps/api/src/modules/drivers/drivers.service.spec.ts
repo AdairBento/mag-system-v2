@@ -69,9 +69,12 @@ describe('DriversService', () => {
 
       expect(result).toBeDefined();
       expect(result).toEqual(expectedResult);
-      expect(prismaService.driver.create).toHaveBeenCalledWith({
-        data: dto,
-      });
+      expect(prismaService.driver.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: dto,
+          include: { client: true },
+        }),
+      );
     });
   });
 
@@ -95,6 +98,7 @@ describe('DriversService', () => {
           status: 'ACTIVE',
           createdAt: new Date(),
           updatedAt: new Date(),
+          clientName: null,
         },
       ];
 
@@ -108,10 +112,19 @@ describe('DriversService', () => {
       expect(result.total).toBe(1);
       expect(result.page).toBe(1);
       expect(result.pageSize).toBe(10);
-      expect(prismaService.driver.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-      });
+      expect(prismaService.driver.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 10,
+          where: {},
+          orderBy: { createdAt: 'desc' },
+          include: {
+            client: {
+              select: { name: true },
+            },
+          },
+        }),
+      );
       expect(prismaService.driver.count).toHaveBeenCalled();
     });
 
@@ -125,10 +138,19 @@ describe('DriversService', () => {
 
       expect(result.page).toBe(1);
       expect(result.pageSize).toBe(10);
-      expect(prismaService.driver.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-      });
+      expect(prismaService.driver.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 10,
+          where: {},
+          orderBy: { createdAt: 'desc' },
+          include: {
+            client: {
+              select: { name: true },
+            },
+          },
+        }),
+      );
     });
   });
 
@@ -156,6 +178,7 @@ describe('DriversService', () => {
       expect(result).toEqual(expectedDriver);
       expect(prismaService.driver.findUnique).toHaveBeenCalledWith({
         where: { id: driverId },
+        include: { client: true },
       });
     });
   });
@@ -190,6 +213,7 @@ describe('DriversService', () => {
       expect(prismaService.driver.update).toHaveBeenCalledWith({
         where: { id: driverId },
         data: updateDto,
+        include: { client: true },
       });
     });
   });

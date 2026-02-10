@@ -82,10 +82,14 @@ describe('ClientsService', () => {
 
       const result = await service.findAll(filter);
 
-      expect(prismaService.client.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-      });
+      expect(prismaService.client.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 10,
+          where: {},
+          orderBy: { createdAt: 'desc' },
+        }),
+      );
       expect(result).toEqual({
         data: [mockClient],
         total: 1,
@@ -100,10 +104,14 @@ describe('ClientsService', () => {
 
       const result = await service.findAll({});
 
-      expect(prismaService.client.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-      });
+      expect(prismaService.client.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 10,
+          where: {},
+          orderBy: { createdAt: 'desc' },
+        }),
+      );
       expect(result.page).toBe(1);
       expect(result.pageSize).toBe(10);
     });
