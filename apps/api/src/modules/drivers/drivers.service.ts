@@ -55,8 +55,12 @@ export class DriversService {
       }
     }
 
+    // ✅ Preparar dados removendo clientId se for undefined
+    const { clientId, ...driverData } = dto;
+    const data = clientId ? { ...driverData, clientId } : driverData;
+
     return this.prisma.driver.create({
-      data: dto,
+      data,
       include: { client: true },
     });
   }
