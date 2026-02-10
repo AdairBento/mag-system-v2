@@ -93,9 +93,12 @@ export default function ClientesPage() {
   const driversTotal = driversQuery.data?.total ?? 0;
   const driversTotalPages = Math.max(1, Math.ceil(driversTotal / pageSize));
 
-  // PJ list for DriverFormModal
+  // ✅ PJ list para DriverFormModal (apenas com IDs válidos)
   const pjClients = useMemo(
-    () => (clientsQuery.data?.items ?? []).filter((c) => c.documentType === "CNPJ"),
+    () =>
+      (clientsQuery.data?.items ?? [])
+        .filter((c) => c.documentType === "CNPJ")
+        .filter((c): c is typeof c & { id: string } => typeof c.id === "string" && c.id.length > 0),
     [clientsQuery.data?.items],
   );
 

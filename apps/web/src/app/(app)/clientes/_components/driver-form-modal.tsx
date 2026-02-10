@@ -5,7 +5,15 @@ import { Save, X } from "lucide-react";
 import { maskCPF, maskPhone } from "@/lib/utils/masks";
 import { toast } from "sonner";
 import { toApiLikeError, getErrorMessage } from "@/lib/api/error-helper";
-import type { Driver, CNHCategory } from "@/types/driver";
+import type { Driver, CNHCategory, DriverStatus } from "@/types/driver";
+
+// ✅ Adapter para normalizar status entre UI e domínio
+type UiDriverStatus = "ACTIVE" | "INACTIVE";
+
+const toUiStatus = (status?: DriverStatus): UiDriverStatus => {
+  if (!status || status === "ACTIVE") return "ACTIVE";
+  return "INACTIVE"; // SUSPENDED e qualquer outro vira INACTIVE na UI
+};
 
 interface DriverFormModalProps {
   isOpen: boolean;
@@ -26,7 +34,7 @@ type FormState = {
   licenseExpiresAt: string;
   phone: string;
   clientId: string;
-  status: "ACTIVE" | "INACTIVE";
+  status: UiDriverStatus;
 };
 
 const emptyForm: FormState = {
@@ -90,7 +98,7 @@ export function DriverFormModal({
         licenseExpiresAt: formatDateForInput(initialData.licenseExpiresAt),
         phone: initialData.phone ?? "",
         clientId: initialData.clientId ?? "",
-        status: initialData.status ?? "ACTIVE",
+        status: toUiStatus(initialData.status),
       });
     } else {
       setForm(emptyForm);
@@ -160,13 +168,13 @@ export function DriverFormModal({
         ...(form.id && { id: form.id }),
         name: form.name.trim(),
         document: form.document.replace(/\D/g, ""),
-        email: form.email.trim() || undefined,
+        email: form.email.trim(),
         licenseNumber: form.licenseNumber.trim(),
         licenseCategory: form.licenseCategory as CNHCategory | null,
         licenseExpiresAt: form.licenseExpiresAt,
         phone: form.phone.replace(/\D/g, ""),
         clientId: form.clientId,
-        status: form.status,
+        status: form.status as DriverStatus,
       };
 
       await onSubmit(driverData);
