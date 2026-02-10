@@ -28,8 +28,8 @@ export class CreateDriverDto {
   name: string;
 
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  @IsNotEmpty()
+  email: string;
 
   @IsString()
   @IsNotEmpty()
