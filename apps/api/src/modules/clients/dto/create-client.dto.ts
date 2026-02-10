@@ -1,49 +1,54 @@
-import { IsString, IsEmail, IsOptional, IsEnum } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { DocumentType } from '@mag-system/shared-types';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+export enum DocumentType {
+  CPF = 'CPF',
+  CNPJ = 'CNPJ',
+}
+
+export enum ClientStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  BLOCKED = 'BLOCKED',
+}
 
 export class CreateClientDto {
-  @ApiProperty({ example: 'João da Silva', description: 'Client full name' })
   @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'joao@example.com', description: 'Client email address' })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ example: '11999999999', description: 'Client phone number' })
   @IsString()
+  @IsNotEmpty()
   phone: string;
 
-  @ApiProperty({ example: '12345678900', description: 'CPF or CNPJ document number' })
   @IsString()
+  @IsNotEmpty()
   document: string;
 
-  @ApiProperty({
-    enum: DocumentType,
-    example: DocumentType.CPF,
-    description: 'Document type'
-  })
   @IsEnum(DocumentType)
+  @IsNotEmpty()
   documentType: DocumentType;
 
-  @ApiProperty({ example: 'Rua Exemplo, 123', description: 'Street address', required: false })
   @IsString()
   @IsOptional()
   address?: string;
 
-  @ApiProperty({ example: 'São Paulo', description: 'City name', required: false })
   @IsString()
   @IsOptional()
   city?: string;
 
-  @ApiProperty({ example: 'SP', description: 'State abbreviation', required: false })
   @IsString()
   @IsOptional()
   state?: string;
 
-  @ApiProperty({ example: '01234-567', description: 'Postal code', required: false })
   @IsString()
   @IsOptional()
   zipCode?: string;
+
+  @IsEnum(ClientStatus)
+  @IsOptional()
+  status?: ClientStatus;
 }
