@@ -536,9 +536,7 @@ export default function ClientesPage() {
               setIsDriverModalOpen(false);
               setEditingDriver(null);
             }}
-            onSubmit={async (payload: Driver) => {
-              await saveDriver.mutateAsync(payload);
-            }}
+            onSubmit={(payload) => saveDriver.mutateAsync(payload).then(() => {})}
           />
         </>
       )}
