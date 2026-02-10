@@ -1,3 +1,41 @@
+# [2.4.0](https://github.com/AdairBento/mag-system-v2/compare/v2.3.0...v2.4.0) (2026-02-10)
+
+### Bug Fixes
+
+- **clients:** implementar filtros completos no findAll() ([2c68195](https://github.com/AdairBento/mag-system-v2/commit/2c68195f95c490f822a5e8c8c27551d4f36b2f0f))
+- **clients:** padronizar verbo HTTP para PATCH no update ([b92a7b9](https://github.com/AdairBento/mag-system-v2/commit/b92a7b9f219a5bb79648a75fa98997454b21deda))
+- corrigir tipo do clientId no create do driver ([22b9191](https://github.com/AdairBento/mag-system-v2/commit/22b91911447089f8526efef64fe005aad8ba59a4))
+- **lint:** remover try/catch desnecessário ([ddd561e](https://github.com/AdairBento/mag-system-v2/commit/ddd561e76dc94c82e58d88d27b442debf9302490))
+- tornar email obrigatório no CreateDriverDto ([35a4bb7](https://github.com/AdairBento/mag-system-v2/commit/35a4bb7b6335d3b63427283d2803c5d86f72eca1))
+- **types:** corrigir retorno do onSubmit para Promise<void> ([eb882b8](https://github.com/AdairBento/mag-system-v2/commit/eb882b8db7b370922d502dfb64ff0d29848dcaf5))
+- **types:** descartar retorno do mutateAsync explicitamente ([de25d3d](https://github.com/AdairBento/mag-system-v2/commit/de25d3d348108e6bd88a2136ee877e18ae7532ed))
+- **types:** tornar email obrigatório em Driver ([efb8202](https://github.com/AdairBento/mag-system-v2/commit/efb820213224e407a302078f0e055251243da0e3))
+- **web:** filtrar clientes com id válido antes de passar ao modal ([bd5c9e8](https://github.com/AdairBento/mag-system-v2/commit/bd5c9e8cef7267c0d1cf56d864edca49567fc02c))
+- **web:** normalizar status de motorista e corrigir tipos ([f1c4423](https://github.com/AdairBento/mag-system-v2/commit/f1c44235fd936453994dbac2e54212bd160bc94a))
+
+### Features
+
+- adicionar cliente HTTP para comunicação com API ([b34a49f](https://github.com/AdairBento/mag-system-v2/commit/b34a49f5d56177f5a324affcb4f07479c1bfebd8))
+- adicionar DTOs de cliente ([848beb1](https://github.com/AdairBento/mag-system-v2/commit/848beb1771826a35f84e7399b9fad939f8d0e132))
+- adicionar DTOs de motorista ([3dbaa40](https://github.com/AdairBento/mag-system-v2/commit/3dbaa40eb21ffca27efdbfdc57a15e80803842c8))
+- adicionar endpoint POST /drivers/:id/migrate para migração de motoristas ([57aea6e](https://github.com/AdairBento/mag-system-v2/commit/57aea6ecd72ed9888e1f8956a9bff7daa2b2e1af))
+- adicionar filtros search e clientId no FilterDriverDto ([73a8da6](https://github.com/AdairBento/mag-system-v2/commit/73a8da6738eedce619354f3c174eaa08747fa0ec))
+- adicionar funções de máscara para CPF, CNPJ e telefone ([20a4425](https://github.com/AdairBento/mag-system-v2/commit/20a44254bd2b270784bda69022d85f21d818f7c2))
+- adicionar helper para tratamento de erros da API ([7017c6a](https://github.com/AdairBento/mag-system-v2/commit/7017c6a046a7cda03d4a078cec2a8652ce0f90b1))
+- adicionar lógica de migração de motoristas entre clientes ([2818b63](https://github.com/AdairBento/mag-system-v2/commit/2818b630ae92e7e12743de4a0b25831c2d3b7b5f))
+- adicionar modal de formulário de cliente ([0bea6e6](https://github.com/AdairBento/mag-system-v2/commit/0bea6e65f218f017a2fb2d7c452e710afabba7d7))
+- adicionar modal de motorista com sistema de migração entre clientes ([a556e07](https://github.com/AdairBento/mag-system-v2/commit/a556e07040d0277e316f899a638f572562b1c564))
+- adicionar tipos de Cliente ([5439850](https://github.com/AdairBento/mag-system-v2/commit/5439850ff8416bf41c5c5f5c76ff8efe60c26557))
+- adicionar tipos de Motorista ([a07114d](https://github.com/AdairBento/mag-system-v2/commit/a07114d66dfc4469fc4f2a012798bf9d3a8af713))
+- adicionar UpdateClientDto ([772486b](https://github.com/AdairBento/mag-system-v2/commit/772486bb747e9d1b20341ae5a9792f9d3346adbc))
+- adicionar UpdateDriverDto ([2425af5](https://github.com/AdairBento/mag-system-v2/commit/2425af5bffb870b2301c5705e16ce5ee3f33bf1b))
+- **api:** adicionar graceful shutdown + detecção de porta ocupada ([9aaa132](https://github.com/AdairBento/mag-system-v2/commit/9aaa132647cc70c9ef420afba11e59af928785c0))
+- criar página de clientes e motoristas com sistema de tabs completo ([9e96f11](https://github.com/AdairBento/mag-system-v2/commit/9e96f11a2c8a731ac57b55aecb2f3119b0f58d37))
+- **database:** adiciona relacionamento Driver -> Client e campos compatíveis com MAG-system-webapp ([d910029](https://github.com/AdairBento/mag-system-v2/commit/d910029ee9a7663bc0edcfb5157c4209d016d67d))
+- **infra:** auditoria enterprise + dev-doctor.ps1 + correções de boot ([4e4f4e0](https://github.com/AdairBento/mag-system-v2/commit/4e4f4e080b5309b6c09ebdf9df27fad2d638f01e))
+- **web:** add QueryClientProvider for React Query ([5e0afaa](https://github.com/AdairBento/mag-system-v2/commit/5e0afaa9d02d118381ffd5120798a67e47ac3d73))
+- **web:** wrap app with QueryProvider ([3bbaec9](https://github.com/AdairBento/mag-system-v2/commit/3bbaec9b19cdf83c054645b53b0de05297d9ce4c))
+
 # [2.3.0](https://github.com/AdairBento/mag-system-v2/compare/v2.2.0...v2.3.0) (2026-02-09)
 
 ### Bug Fixes
