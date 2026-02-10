@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, IsEnum, Min } from 'class-validator';
+import { IsOptional, IsString, IsInt, IsEnum, Min, IsUUID } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { DriverStatus, LicenseCategory } from '@mag-system/shared-types';
 import { Type } from 'class-transformer';
@@ -28,6 +28,16 @@ export class FilterDriverDto {
   @IsOptional()
   @IsString()
   licenseNumber?: string;
+
+  @ApiPropertyOptional({ description: 'General search (name, document, license)' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by client ID' })
+  @IsOptional()
+  @IsUUID()
+  clientId?: string;
 
   @ApiPropertyOptional({ default: 0, description: 'Number of records to skip' })
   @IsOptional()
