@@ -4,8 +4,8 @@
 [![codecov](https://codecov.io/gh/AdairBento/mag-system-v2/branch/main/graph/badge.svg)](https://codecov.io/gh/AdairBento/mag-system-v2)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-20.x-green.svg?logo=node.js)](package.json)
-[![PNPM](https://img.shields.io/badge/pnpm-8.x-orange.svg?logo=pnpm)](package.json)
+[![Node](https://img.shields.io/badge/node-22.x-green.svg?logo=node.js)](package.json)
+[![PNPM](https://img.shields.io/badge/pnpm-10.x-orange.svg?logo=pnpm)](package.json)
 [![NestJS](https://img.shields.io/badge/NestJS-10.x-E0234E?logo=nestjs)](https://nestjs.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.x-000000?logo=next.js)](https://nextjs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -17,7 +17,7 @@ Monorepo moderno com NestJS (backend), Next.js (frontend) e Prisma (database).
 
 ---
 
-## 🏗️ Arquitetura
+## 🏭 Arquitetura
 
 ```
 mag-system-v2/
@@ -103,7 +103,7 @@ Prisma ORM com PostgreSQL:
 - pnpm (package manager)
 - Docker + Docker Compose
 - GitHub Actions (CI/CD)
-- Renovate (auto-updates)
+- Semantic Release (auto-versioning)
 
 ---
 
@@ -124,19 +124,21 @@ Prisma ORM com PostgreSQL:
 
 - Packages (core, database, types)
 - API estrutura base
-- Auth + Clients modules
+- Auth + Clients + Drivers modules
 - Validações + DTOs
 - CI/CD pipeline
 - Templates profissionais
+- React Query setup
 
 **Em Progresso (🔨):**
 
 - Frontend Next.js
 - Dashboard e layouts
+- Migração de motoristas
 
 **Próximo (📋):**
 
-- Drivers, Vehicles, Rentals modules
+- Vehicles, Rentals modules
 - E2E tests
 - Desenvolvimento incremental
 
