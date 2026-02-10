@@ -6,7 +6,7 @@ export interface Driver {
   clientId?: string;
   clientName?: string; // Campo virtual retornado pela API
   name: string;
-  email?: string;
+  email: string; // ✅ Obrigatório (alinhado com backend)
   phone: string;
   document: string; // CPF
   licenseNumber: string; // CNH

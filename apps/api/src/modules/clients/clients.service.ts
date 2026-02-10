@@ -15,11 +15,39 @@ export class ClientsService {
   }
 
   async findAll(filter: FilterClientDto): Promise<PaginatedResult<Client>> {
-    const { skip = 0, take = 10 } = filter || {};
+    const { skip = 0, take = 10, status, documentType, name, email, document } = filter || {};
+
+    // ✅ Construir WHERE dinâmico
+    const where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (documentType) {
+      where.documentType = documentType;
+    }
+
+    if (name) {
+      where.name = { contains: name, mode: 'insensitive' };
+    }
+
+    if (email) {
+      where.email = { contains: email, mode: 'insensitive' };
+    }
+
+    if (document) {
+      where.document = { contains: document };
+    }
 
     const [data, total] = await Promise.all([
-      this.prisma.client.findMany({ skip, take }),
-      this.prisma.client.count(),
+      this.prisma.client.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.client.count({ where }),
     ]);
 
     return {
