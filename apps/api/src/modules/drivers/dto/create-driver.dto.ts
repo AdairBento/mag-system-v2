@@ -1,57 +1,73 @@
-import { IsString, IsEmail, IsOptional, IsDateString, IsEnum } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { LicenseCategory } from '@mag-system/shared-types';
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+
+export enum LicenseCategory {
+  A = 'A',
+  B = 'B',
+  AB = 'AB',
+  C = 'C',
+  D = 'D',
+  E = 'E',
+  AC = 'AC',
+  AD = 'AD',
+  AE = 'AE',
+}
+
+export enum DriverStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+}
 
 export class CreateDriverDto {
-  @ApiProperty()
+  @IsUUID()
+  @IsOptional()
+  clientId?: string;
+
   @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
   @IsEmail()
-  email: string;
+  @IsOptional()
+  email?: string;
 
-  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   phone: string;
 
-  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   document: string;
 
-  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   licenseNumber: string;
 
-  @ApiProperty({
-    enum: LicenseCategory,
-    example: LicenseCategory.B,
-    description: 'Driver license category'
-  })
   @IsEnum(LicenseCategory)
+  @IsNotEmpty()
   licenseCategory: LicenseCategory;
 
-  @ApiProperty()
   @IsDateString()
+  @IsNotEmpty()
   licenseExpiresAt: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   address?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   city?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   state?: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   zipCode?: string;
+
+  @IsEnum(DriverStatus)
+  @IsOptional()
+  status?: DriverStatus;
 }
