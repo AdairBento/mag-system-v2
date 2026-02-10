@@ -3,14 +3,20 @@ import {
   Get,
   Post,
   Body,
-  Put,
+  Patch,
   Param,
   Delete,
   Query,
   UseGuards,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
@@ -31,6 +37,10 @@ export class DriversController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Driver successfully created',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Driver with this CPF already exists',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -54,7 +64,9 @@ export class DriversController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized - JWT token required',
   })
-  findAll(@Query() filter: FilterDriverDto): Promise<PaginatedResult<Driver>> {
+  findAll(
+    @Query() filter: FilterDriverDto,
+  ): Promise<PaginatedResult<Driver>> {
     return this.driversService.findAll(filter);
   }
 
@@ -77,7 +89,7 @@ export class DriversController {
     return this.driversService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Update a driver' })
   @ApiParam({ name: 'id', description: 'Driver UUID' })
   @ApiResponse({
@@ -96,7 +108,10 @@ export class DriversController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized - JWT token required',
   })
-  update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto): Promise<Driver> {
+  update(
+    @Param('id') id: string,
+    @Body() updateDriverDto: UpdateDriverDto,
+  ): Promise<Driver> {
     return this.driversService.update(id, updateDriverDto);
   }
 
@@ -117,5 +132,39 @@ export class DriversController {
   })
   remove(@Param('id') id: string): Promise<Driver> {
     return this.driversService.remove(id);
+  }
+
+  /**
+   * 🔄 ENDPOINT DE MIGRAÇÃO
+   * Transfere um motorista de um cliente para outro
+   */
+  @Post(':id/migrate')
+  @ApiOperation({
+    summary: 'Migrate driver to another client',
+    description:
+      'Transfers a driver from their current client to a new client (must be CNPJ)',
+  })
+  @ApiParam({ name: 'id', description: 'Driver UUID to migrate' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Driver successfully migrated to new client',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Target client is not a legal entity (CNPJ)',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Driver or target client not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized - JWT token required',
+  })
+  async migrateDriver(
+    @Param('id') driverId: string,
+    @Body('newClientId') newClientId: string,
+  ): Promise<Driver> {
+    return this.driversService.migrateDriver(driverId, newClientId);
   }
 }
