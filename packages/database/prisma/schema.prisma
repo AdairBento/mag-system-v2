@@ -18,8 +18,18 @@ model User {
   name      String
   role      UserRole   @default(OPERATOR)
   status    UserStatus @default(ACTIVE)
+  
+  // ✨ NOVO: Enterprise Auth Fields
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  lastLoginAt         DateTime? @map("last_login_at")
+  
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
+
+  // ✨ NOVO: Relations
+  sessions  Session[]
+  auditLogs AuditLog[]
 
   @@index([role])
   @@index([status])
@@ -35,6 +45,45 @@ enum UserRole {
 enum UserStatus {
   ACTIVE
   INACTIVE
+}
+
+// ✨ NOVO: Session Management
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  refreshToken String   @unique @map("refresh_token")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([refreshToken])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// ✨ NOVO: Audit Logging
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String   // "LOGIN", "LOGOUT", "CREATE_RENTAL"
+  resource  String   // "User", "Rental", "Vehicle"
+  resourceId String? @map("resource_id") @db.Uuid
+  metadata  Json?    // Dados adicionais
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // ============================================
