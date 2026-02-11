@@ -50,13 +50,13 @@ export class AuthService {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // Cria usuário
+    // Cria usuário com role padrão OPERATOR se não especificado
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
-        role: dto.role,
+        role: dto.role ?? 'OPERATOR',
       },
     });
 
