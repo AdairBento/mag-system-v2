@@ -1,21 +1,8 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
-import { FlatCompat } from "@eslint/compat";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextPlugin from "@next/eslint-plugin-next";
 
 export default [
-
-  // ================================
-  // IGNORES
-  // ================================
   {
     ignores: [
       "**/node_modules/**",
@@ -28,20 +15,21 @@ export default [
     ],
   },
 
-  // ================================
-  // BASE (JS + TS)
-  // ================================
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
-  // ================================
-  // NEXT.JS (convertido do legacy)
-  // ================================
-  ...compat.extends("next/core-web-vitals"),
+  // 🌐 NEXT.JS
+  {
+    files: ["apps/web/**/*.{ts,tsx,js,jsx}"],
+    plugins: {
+      "@next/next": nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
+  },
 
-  // ================================
-  // REGRAS GLOBAIS
-  // ================================
+  // 🌍 Regras globais
   {
     rules: {
       "no-console": "off",
@@ -53,9 +41,7 @@ export default [
     },
   },
 
-  // ================================
-  // PACKAGES = MAIS RIGOR
-  // ================================
+  // 📦 Packages mais rigorosos
   {
     files: ["packages/**/*.{ts,tsx}"],
     rules: {
@@ -63,24 +49,12 @@ export default [
     },
   },
 
-  // ================================
-  // TESTES = MAIS FLEXÍVEL
-  // ================================
+  // 🧪 Testes mais flexíveis
   {
     files: ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
-    },
-  },
-
-  // ================================
-  // API (Nest)
-  // ================================
-  {
-    files: ["apps/api/**/*.{ts,tsx}"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];
