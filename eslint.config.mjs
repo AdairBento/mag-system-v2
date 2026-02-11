@@ -1,10 +1,21 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import { FlatCompat } from "@eslint/compat";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
 
 export default [
-  // ========================================
-  // IGNORES - Diretórios gerados/build
-  // ========================================
+
+  // ================================
+  // IGNORES
+  // ================================
   {
     ignores: [
       "**/node_modules/**",
@@ -17,55 +28,44 @@ export default [
     ],
   },
 
-  // ========================================
-  // BASE CONFIGS - Recommended ESLint + TS
-  // ========================================
+  // ================================
+  // BASE (JS + TS)
+  // ================================
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
-  // ========================================
-  // GLOBAL RULES - Padrão do projeto
-  // ========================================
+  // ================================
+  // NEXT.JS (convertido do legacy)
+  // ================================
+  ...compat.extends("next/core-web-vitals"),
+
+  // ================================
+  // REGRAS GLOBAIS
+  // ================================
   {
     rules: {
-      // Console permitido (NestJS usa logger próprio)
       "no-console": "off",
-
-      // Variáveis/args não usados com _ são OK
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-        },
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-
-      // any é warning por padrão
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 
-  // ========================================
-  // PACKAGES/** - Strict TypeScript
-  // ========================================
+  // ================================
+  // PACKAGES = MAIS RIGOR
+  // ================================
   {
     files: ["packages/**/*.{ts,tsx}"],
     rules: {
-      // Packages devem ser type-safe
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/explicit-function-return-type": [
-        "warn",
-        {
-          allowExpressions: true,
-          allowTypedFunctionExpressions: true,
-        },
-      ],
     },
   },
 
-  // ========================================
-  // TESTS - Permissivo (any OK em mocks)
-  // ========================================
+  // ================================
+  // TESTES = MAIS FLEXÍVEL
+  // ================================
   {
     files: ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**/*.ts"],
     rules: {
@@ -74,21 +74,13 @@ export default [
     },
   },
 
-  // ========================================
-  // API (NestJS) - Pragmático
-  // ========================================
+  // ================================
+  // API (Nest)
+  // ================================
   {
     files: ["apps/api/**/*.{ts,tsx}"],
     rules: {
-      // NestJS usa decorators que podem ter any
       "@typescript-eslint/no-explicit-any": "warn",
     },
-  },
-
-  // ========================================
-  // WEB (Next.js) - Ignora (usa next lint)
-  // ========================================
-  {
-    ignores: ["apps/web/**"],
   },
 ];
