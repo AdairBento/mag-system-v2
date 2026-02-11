@@ -56,6 +56,7 @@ describe('AuthService', () => {
     isLocked: jest.fn(),
     recordFailedAttempt: jest.fn(),
     resetFailedAttempts: jest.fn(),
+    getRemainingLockTime: jest.fn(),
   };
 
   beforeEach(async () => {
