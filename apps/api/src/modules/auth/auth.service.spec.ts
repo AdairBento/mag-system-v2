@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '@/database/prisma.service';
@@ -40,6 +41,10 @@ describe('AuthService', () => {
     sign: jest.fn(),
   };
 
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
   const mockRefreshTokenService = {
     generateRefreshToken: jest.fn(),
     validateRefreshToken: jest.fn(),
@@ -65,6 +70,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: RefreshTokenService, useValue: mockRefreshTokenService },
         { provide: AuditService, useValue: mockAuditService },
         { provide: ProgressiveLockService, useValue: mockProgressiveLockService },
