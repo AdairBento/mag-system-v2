@@ -1,0 +1,87 @@
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	apps/web/.eslintrc.json
+	logs/
+	scripts/auto-clean-verify.ps1
+	scripts/fix-workspace-prisma-and-verify.ps1
+
+no changes added to commit (use "git add" and/or "git commit -a")
+  feat/cnh-validator
+  feat/cpf-validator
+  feat/error-handling-foundation
+  fix/eslint-9-packages
+  fix/eslint-preset-conflict
+  fix/turbo-test-outputs
+* main
+  refactor/drivers-error-handling
+  refactor/move-routes-to-app
+  renovate/major-commitlint-monorepo
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/config/renovate-automerge
+  remotes/origin/feat/cnh-validator
+  remotes/origin/feat/cpf-validator
+  remotes/origin/feat/error-handling-foundation
+  remotes/origin/feat/rentals-business-logic
+  remotes/origin/fix/duplicate-exports
+  remotes/origin/fix/eslint-9-packages
+  remotes/origin/fix/eslint-preset-conflict
+  remotes/origin/fix/import-path
+  remotes/origin/fix/jest-e2e-config
+  remotes/origin/fix/jest-module-mapper
+  remotes/origin/fix/jest-path-mapping
+  remotes/origin/fix/missing-request-id-middleware
+  remotes/origin/fix/rentals-typescript-errors
+  remotes/origin/fix/turbo-test-outputs
+  remotes/origin/fix/web-eslint-9
+  remotes/origin/main
+  remotes/origin/refactor/drivers-error-handling
+  remotes/origin/renovate/actions-checkout-6.x
+  remotes/origin/renovate/actions-setup-node-6.x
+  remotes/origin/renovate/all-minor-patch
+  remotes/origin/renovate/codecov-codecov-action-5.x
+  remotes/origin/renovate/husky-9.x
+  remotes/origin/renovate/lint-staged-16.x
+  remotes/origin/renovate/major-commitlint-monorepo
+  remotes/origin/renovate/softprops-action-gh-release-2.x
+  remotes/origin/test/clients-e2e
+* dc18f4a refactor(eslint): remove all legacy configs and cleanup
+* 63bba95 test(auth): fix RegisterDto type issue in default role test
+* 97cb4dd chore(test): remove second backup test file
+* ff6968d chore(test): remove backup test file
+* 8fc2102 test(auth): align test assertions with actual service method signatures
+* 6b930da fix(auth): add default OPERATOR role in register method
+*   99e5750 fix(auth): remove duplicate test file and sync with GitHub
+|\  
+| * 0ce55d6 test(auth): create comprehensive test suite with all mocks
+| * c801dcf test: remove old auth.service.spec.ts for recreation
+| * fdb48e6 fix(auth): complete test spec with all enterprise mocks
+* | 95212f8 fix(auth): resolve test spec with all enterprise mocks
+* | af67215 fix(api): align auth service spec with current simple AuthService
+|/  
+* 814aa2f feat(auth): complete AuthService, Controller and Module
+* 8e0d095 feat(auth): implement enterprise-grade authentication system
+* 00aa6db fix(tests): define mocks outside beforeEach for proper DI resolution
+* 8cc7c9b test(auth): implement professional test suite with proper mocking
+* d09e23e fix(tests): simplify AuthService tests with minimal mocks
+* ca3e9cc fix(tests): reorder providers to fix dependency injection
+* a212187 fix(tests): add ConfigService mock for AuthService tests
+* dcd7c00 fix(tests): add missing getRemainingLockTime mock
+* 833a48f fix(tests): update AuthService tests with new dependencies
+* fc9def6 fix(audit): add explicit return type to findLogs method
+* a0e8b4e fix(auth): correct imports and add missing types
+* fdd0a7e feat(auth): register new services in AuthModule providers
+* 309bdf8 feat(auth): add /refresh and /logout endpoints with IP tracking
+* 8d939f0 feat(auth): integrate RefreshToken, Audit and ProgressiveLock services
+* d95f8ae feat(auth): implement RefreshToken, Audit and ProgressiveLock services
+* 77f0a14 feat(database): add Session and AuditLog models for enterprise auth
+* 9bba065 chore: clean up workflows and finalize semantic-release setup
+* edade54 ci: disable semantic-release git commits to avoid race conditions

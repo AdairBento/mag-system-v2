@@ -21,7 +21,6 @@ out/
 **/*.js.map
 !jest.config.js
 !*.config.js
-!.eslintrc.js
 !commitlint.config.cjs
 !next.config.js
 !tailwind.config.js
