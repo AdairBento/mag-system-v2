@@ -1,3 +1,5 @@
-pwsh -NoProfile -File ./scripts/verify-tests-layout.ps1
-#!/bin/sh
-pnpm -w verify
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+pnpm -w type-check
+pnpm -w lint

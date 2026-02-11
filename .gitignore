@@ -57,3 +57,8 @@ pnpm-debug.log*
 # backups locais gerados por scripts
 packages/**/package.json.backup-*
 
+
+# Arquivos temporários
+logs/
+dist/
+*.log

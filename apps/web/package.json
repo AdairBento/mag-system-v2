@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test": "echo \"No tests configured for web app\" && exit 0",
     "test:cov": "echo \"No tests configured for web app\" && exit 0",
     "type-check": "tsc --noEmit"
