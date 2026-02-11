@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@mag-system/database';
+import { PrismaService } from '@/database/prisma.service';
 import * as crypto from 'crypto';
 
 @Injectable()

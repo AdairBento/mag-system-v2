@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@mag-system/database';
+import { PrismaService } from '@/database/prisma.service';
 import { AuditService } from './audit.service';
 
 /**

@@ -13,6 +13,14 @@ import { Public } from '../../common/decorators/public.decorator';
 import { LoginDto, RegisterDto } from '@mag-system/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+interface RequestWithUser extends Request {
+  user: {
+    sub: string;
+    email: string;
+    role: string;
+  };
+}
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -83,7 +91,7 @@ export class AuthController {
     },
   })
   async logout(
-    @Request() req,
+    @Request() req: RequestWithUser,
     @Body('refreshToken') refreshToken: string,
     @Ip() ipAddress: string,
     @Headers('user-agent') userAgent: string,

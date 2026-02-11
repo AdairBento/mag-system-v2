@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@mag-system/database';
+import { PrismaService } from '@/database/prisma.service';
 
 interface AuditLogData {
   userId?: string;
@@ -246,16 +246,16 @@ export class AuditService {
     });
 
     // Contar por ação
-    const actionCounts = logs.reduce((acc, log) => {
+    const actionCounts = logs.reduce((acc: Record<string, number>, log) => {
       acc[log.action] = (acc[log.action] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     // Contar por recurso
-    const resourceCounts = logs.reduce((acc, log) => {
+    const resourceCounts = logs.reduce((acc: Record<string, number>, log) => {
       acc[log.resource] = (acc[log.resource] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     return {
       totalActions: logs.length,
