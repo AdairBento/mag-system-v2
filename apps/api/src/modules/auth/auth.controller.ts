@@ -2,106 +2,80 @@ import {
   Controller,
   Post,
   Body,
+  HttpCode,
+  HttpStatus,
+  Req,
   UseGuards,
-  Request,
-  Ip,
-  Headers,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { Public } from '../../common/decorators/public.decorator';
-import { LoginDto, RegisterDto } from '@mag-system/core';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LoginDto, RegisterDto, RefreshDto } from './dto';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
-interface RequestWithUser extends Request {
-  user: {
-    sub: string;
-    email: string;
-    role: string;
-  };
-}
-
-@ApiTags('auth')
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Registrar novo usuário' })
-  register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 401, description: 'Email already exists' })
+  async register(@Body() dto: RegisterDto, @Req() req: Request) {
+    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'];
+
+    return this.authService.register(dto, ipAddress, userAgent);
   }
 
-  @Public()
   @Post('login')
-  @ApiOperation({ summary: 'Login de usuário' })
-  @ApiBody({ type: LoginDto })
-  login(
-    @Body() loginDto: LoginDto,
-    @Ip() ipAddress: string,
-    @Headers('user-agent') userAgent: string,
-  ) {
-    return this.authService.login(loginDto, ipAddress, userAgent);
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with email and password' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials or account locked' })
+  async login(@Body() dto: LoginDto, @Req() req: Request) {
+    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'];
+
+    return this.authService.login(dto, ipAddress, userAgent);
   }
 
-  @Public()
-  @Post('refresh')
-  @ApiOperation({
-    summary: 'Renovar access token',
-    description:
-      'Usa um refresh token válido para gerar um novo access token. O refresh token permanece válido por 30 dias.',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        refreshToken: {
-          type: 'string',
-          description: 'Refresh token obtido no login',
-          example: 'a1b2c3d4e5f6...',
-        },
-      },
-      required: ['refreshToken'],
-    },
-  })
-  async refresh(@Body('refreshToken') refreshToken: string) {
-    return this.authService.refreshAccessToken(refreshToken);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Logout de usuário',
-    description:
-      'Revoga o refresh token fornecido, invalidando a sessão. O access token continua válido até expirar (15 min).',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        refreshToken: {
-          type: 'string',
-          description: 'Refresh token a ser revogado',
-          example: 'a1b2c3d4e5f6...',
-        },
-      },
-      required: ['refreshToken'],
-    },
-  })
-  async logout(
-    @Request() req: RequestWithUser,
-    @Body('refreshToken') refreshToken: string,
-    @Ip() ipAddress: string,
-    @Headers('user-agent') userAgent: string,
-  ) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Logout and revoke refresh token' })
+  @ApiResponse({ status: 204, description: 'Logout successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(@Body() dto: RefreshDto, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'];
+
     await this.authService.logout(
-      req.user.sub,
-      refreshToken,
+      userId,
+      dto.refreshToken,
       ipAddress,
       userAgent,
     );
-    return { message: 'Logout realizado com sucesso' };
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  async refresh(@Body() dto: RefreshDto, @Req() req: Request) {
+    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'];
+
+    return this.authService.refreshAccessToken(
+      dto.refreshToken,
+      ipAddress,
+      userAgent,
+    );
   }
 }

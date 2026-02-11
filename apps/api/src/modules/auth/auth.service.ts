@@ -1,210 +1,280 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/database/prisma.service';
-import * as bcrypt from 'bcryptjs';
-import { LoginDto, RegisterDto, AuthResponseDto } from '@mag-system/core';
 import { RefreshTokenService } from './services/refresh-token.service';
 import { AuditService } from './services/audit.service';
 import { ProgressiveLockService } from './services/progressive-lock.service';
+import { LoginDto, RegisterDto } from './dto';
+import * as bcrypt from 'bcryptjs';
 
-type UserRole = 'ADMIN' | 'MANAGER' | 'OPERATOR';
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
+}
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-    private refreshTokenService: RefreshTokenService,
-    private auditService: AuditService,
-    private progressiveLockService: ProgressiveLockService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
+    private readonly refreshTokenService: RefreshTokenService,
+    private readonly auditService: AuditService,
+    private readonly lockService: ProgressiveLockService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+  /**
+   * Registra novo usuário
+   */
+  async register(
+    dto: RegisterDto,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<AuthTokens> {
+    // Verifica se email já existe
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
+    if (existing) {
+      throw new UnauthorizedException('Email já cadastrado');
+    }
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // Cria usuário
     const user = await this.prisma.user.create({
       data: {
-        email: registerDto.email,
+        email: dto.email,
         password: hashedPassword,
-        name: registerDto.name,
-        role: registerDto.role || 'OPERATOR',
+        name: dto.name,
+        role: dto.role,
       },
     });
 
-    return this.generateTokens(user);
+    // Gera tokens
+    const tokens = await this.generateTokens(user.id, user.role);
+
+    // Armazena refresh token
+    await this.refreshTokenService.generateRefreshToken(
+      user.id,
+      ipAddress,
+      userAgent,
+    );
+
+    // Auditoria
+    await this.auditService.logRegister(user.id, ipAddress, userAgent);
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    };
   }
 
+  /**
+   * Login com email e senha
+   */
   async login(
-    loginDto: LoginDto,
+    dto: LoginDto,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<AuthResponseDto> {
+  ): Promise<AuthTokens> {
+    // Busca usuário
     const user = await this.prisma.user.findUnique({
-      where: { email: loginDto.email },
+      where: { email: dto.email },
     });
 
+    // Verifica existência
     if (!user) {
-      // Log failed login attempt (user not found)
       await this.auditService.logLoginFailed(
-        loginDto.email,
-        'User not found',
+        dto.email,
+        'Usuário não encontrado',
         ipAddress,
         userAgent,
       );
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // Check if user is locked (progressive lock)
-    const isLocked = await this.progressiveLockService.isLocked(user.id);
-    if (isLocked) {
-      const remainingMinutes = await this.progressiveLockService.getRemainingLockTime(user.id);
-      throw new UnauthorizedException(
-        `Conta bloqueada. Tente novamente em ${remainingMinutes} minutos.`,
-      );
-    }
+    // Verifica bloqueio
+    await this.lockService.checkLockBeforeLogin(user.id);
 
-    // Check if user is active
-    if (user.status !== 'ACTIVE') {
-      await this.auditService.logLoginFailed(
-        loginDto.email,
-        `User status: ${user.status}`,
-        ipAddress,
-        userAgent,
-      );
-      throw new UnauthorizedException('Conta inativa ou suspensa');
-    }
+    // Verifica senha
+    const passwordValid = await bcrypt.compare(dto.password, user.password);
 
-    // Validate password
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
-
-    if (!isPasswordValid) {
-      // Record failed attempt and check if should lock
-      const lockResult = await this.progressiveLockService.recordFailedAttempt(
+    if (!passwordValid) {
+      // Registra falha
+      const lockResult = await this.lockService.recordFailedAttempt(
         user.id,
         ipAddress,
       );
 
-      // Log failed login attempt
       await this.auditService.logLoginFailed(
-        loginDto.email,
-        'Invalid password',
+        dto.email,
+        'Senha inválida',
         ipAddress,
         userAgent,
       );
 
       if (lockResult.locked) {
         throw new UnauthorizedException(
-          `Credenciais inválidas. Conta bloqueada por ${lockResult.lockMinutes} minutos após ${lockResult.attempts} tentativas falhas.`,
-        );
-      } else {
-        throw new UnauthorizedException(
-          `Credenciais inválidas. Tentativa ${lockResult.attempts} de 3.`,
+          `Conta bloqueada por ${lockResult.lockMinutes} minuto(s) após ${lockResult.attempts} tentativas falhadas`,
         );
       }
+
+      throw new UnauthorizedException(
+        `Credenciais inválidas. Tentativa ${lockResult.attempts}/${5}`,
+      );
     }
 
-    // ✅ LOGIN SUCCESSFUL
+    // Verifica status
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Conta inativa');
+    }
 
-    // Reset failed attempts
-    await this.progressiveLockService.resetFailedAttempts(user.id);
+    // Reseta contador de falhas
+    await this.lockService.resetFailedAttempts(user.id);
 
-    // Update lastLoginAt
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
+    // Gera tokens
+    const tokens = await this.generateTokens(user.id, user.role);
 
-    // Generate tokens (access + refresh)
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = await this.refreshTokenService.generateRefreshToken(
+    // Armazena refresh token
+    await this.refreshTokenService.generateRefreshToken(
       user.id,
       ipAddress,
       userAgent,
     );
 
-    // Audit log
+    // Auditoria
     await this.auditService.logLogin(user.id, ipAddress, userAgent);
 
     return {
-      accessToken,
-      refreshToken,
+      ...tokens,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role as UserRole,
+        role: user.role,
       },
     };
   }
 
+  /**
+   * Logout - revoga refresh token
+   */
   async logout(
     userId: string,
     refreshToken: string,
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
-    // Revoke refresh token
     await this.refreshTokenService.revokeRefreshToken(refreshToken);
-
-    // Audit log
     await this.auditService.logLogout(userId, ipAddress, userAgent);
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
-    const result = await this.refreshTokenService.validateRefreshToken(refreshToken);
+  /**
+   * Refresh access token
+   */
+  async refreshAccessToken(
+    refreshToken: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<{ accessToken: string }> {
+    // Valida refresh token
+    const payload = await this.refreshTokenService.validateRefreshToken(
+      refreshToken,
+    );
 
-    if (!result) {
-      throw new UnauthorizedException('Invalid refresh token');
+    if (!payload) {
+      throw new UnauthorizedException('Refresh token inválido ou expirado');
     }
 
+    // Busca usuário
     const user = await this.prisma.user.findUnique({
-      where: { id: result.userId },
+      where: { id: payload.userId },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+    if (!user || user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Usuário inválido ou inativo');
     }
 
-    const accessToken = this.generateAccessToken(user);
+    // Gera novo access token
+    const accessToken = await this.generateAccessToken(user.id, user.role);
+
+    // Auditoria
+    await this.auditService.logRefreshToken(user.id, ipAddress, userAgent);
 
     return { accessToken };
   }
 
   /**
-   * Generates JWT access token (short-lived, 15 min)
+   * Gera access e refresh tokens
    */
-  private generateAccessToken(user: {
-    id: string;
-    email: string;
-    role: string;
-  }): string {
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    return this.jwtService.sign(payload, { expiresIn: '15m' });
+  private async generateTokens(
+    userId: string,
+    role: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const payload = { sub: userId, role };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: this.config.get<string>('JWT_EXPIRES_IN', '15m'),
+    });
+
+    const refreshToken = this.jwtService.sign(
+      { ...payload, type: 'refresh' },
+      {
+        expiresIn: this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d'),
+      },
+    );
+
+    return { accessToken, refreshToken };
   }
 
   /**
-   * @deprecated Use login() instead - returns separate accessToken and refreshToken
+   * Gera apenas access token
    */
-  private generateTokens(user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  }): AuthResponseDto {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+  private async generateAccessToken(
+    userId: string,
+    role: string,
+  ): Promise<string> {
+    const payload = { sub: userId, role };
 
-    return {
-      accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role as UserRole,
+    return this.jwtService.sign(payload, {
+      expiresIn: this.config.get<string>('JWT_EXPIRES_IN', '15m'),
+    });
+  }
+
+  /**
+   * Valida access token
+   */
+  async validateUser(userId: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        status: true,
       },
-    };
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
+      return null;
+    }
+
+    return user;
   }
 }
