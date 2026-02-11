@@ -130,6 +130,7 @@ describe('AuthService', () => {
     it('should successfully register a new user', async () => {
       const hashedPassword = '$2a$10$hashedNewPassword';
       (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue({ ...mockUser, ...registerDto });
       mockJwtService.sign.mockReturnValue('access-token-123');
       mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token-123');
@@ -153,10 +154,14 @@ describe('AuthService', () => {
     });
 
     it('should use default OPERATOR role when not specified', async () => {
-      const dtoWithoutRole = { ...registerDto };
-      delete (dtoWithoutRole as any).role;
+      const dtoWithoutRole = {
+        email: 'newuser@example.com',
+        password: 'StrongPass123!',
+        name: 'New User',
+      };
 
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValue('token');
       mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh');
@@ -189,7 +194,7 @@ describe('AuthService', () => {
 
       const result = await service.login(loginDto, '192.168.1.1', 'Mozilla/5.0');
 
-      expect(mockProgressiveLockService.checkLockBeforeLogin).toHaveBeenCalledWith(mockUser);
+      expect(mockProgressiveLockService.checkLockBeforeLogin).toHaveBeenCalledWith(mockUser.id);
       expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.password);
       expect(mockProgressiveLockService.resetFailedAttempts).toHaveBeenCalledWith(mockUser.id);
       expect(mockAuditService.logLogin).toHaveBeenCalled();
@@ -221,7 +226,10 @@ describe('AuthService', () => {
         UnauthorizedException
       );
 
-      expect(mockProgressiveLockService.recordFailedAttempt).toHaveBeenCalledWith(mockUser.id);
+      expect(mockProgressiveLockService.recordFailedAttempt).toHaveBeenCalledWith(
+        mockUser.id,
+        '192.168.1.1'
+      );
       expect(mockAuditService.logLoginFailed).toHaveBeenCalled();
     });
 
@@ -239,7 +247,10 @@ describe('AuthService', () => {
         UnauthorizedException
       );
 
-      expect(mockProgressiveLockService.recordFailedAttempt).toHaveBeenCalled();
+      expect(mockProgressiveLockService.recordFailedAttempt).toHaveBeenCalledWith(
+        mockUser.id,
+        '192.168.1.1'
+      );
     });
   });
 
