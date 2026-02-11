@@ -11,70 +11,69 @@ import * as bcrypt from 'bcryptjs';
 
 jest.mock('bcryptjs');
 
+const mockUser = {
+  id: '123',
+  email: 'test@example.com',
+  password: 'hashedPassword',
+  name: 'Test User',
+  role: 'OPERATOR' as const,
+  status: 'ACTIVE' as const,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastLoginAt: null,
+};
+
+const mockPrismaService = {
+  user: {
+    create: jest.fn(),
+    findUnique: jest.fn(),
+    update: jest.fn(),
+  },
+};
+
+const mockJwtService = {
+  sign: jest.fn(),
+  verify: jest.fn(),
+};
+
+const mockConfigService = {
+  get: jest.fn((key: string) => {
+    const config = {
+      JWT_SECRET: 'test-secret',
+      JWT_EXPIRES_IN: '15m',
+    };
+    return config[key];
+  }),
+};
+
+const mockRefreshTokenService = {
+  generateRefreshToken: jest.fn(),
+  validateRefreshToken: jest.fn(),
+  revokeRefreshToken: jest.fn(),
+};
+
+const mockAuditService = {
+  logLogin: jest.fn(),
+  logLogout: jest.fn(),
+  logLoginFailed: jest.fn(),
+};
+
+const mockProgressiveLockService = {
+  isLocked: jest.fn(),
+  recordFailedAttempt: jest.fn(),
+  resetFailedAttempts: jest.fn(),
+  getRemainingLockTime: jest.fn(),
+};
+
 describe('AuthService', () => {
   let service: AuthService;
   let prismaService: jest.Mocked<PrismaService>;
   let jwtService: jest.Mocked<JwtService>;
-  let configService: jest.Mocked<ConfigService>;
   let refreshTokenService: jest.Mocked<RefreshTokenService>;
   let auditService: jest.Mocked<AuditService>;
   let progressiveLockService: jest.Mocked<ProgressiveLockService>;
 
-  const mockUser = {
-    id: '123',
-    email: 'test@example.com',
-    password: 'hashedPassword',
-    name: 'Test User',
-    role: 'OPERATOR' as const,
-    status: 'ACTIVE' as const,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastLoginAt: null,
-  };
-
   beforeEach(async () => {
-    const mockPrismaService = {
-      user: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        update: jest.fn(),
-      },
-    };
-
-    const mockJwtService = {
-      sign: jest.fn(),
-      verify: jest.fn(),
-    };
-
-    const mockConfigService = {
-      get: jest.fn((key: string) => {
-        const config = {
-          JWT_SECRET: 'test-secret',
-          JWT_EXPIRES_IN: '15m',
-        };
-        return config[key];
-      }),
-    };
-
-    const mockRefreshTokenService = {
-      generateRefreshToken: jest.fn(),
-      validateRefreshToken: jest.fn(),
-      revokeRefreshToken: jest.fn(),
-    };
-
-    const mockAuditService = {
-      logLogin: jest.fn(),
-      logLogout: jest.fn(),
-      logLoginFailed: jest.fn(),
-    };
-
-    const mockProgressiveLockService = {
-      isLocked: jest.fn(),
-      recordFailedAttempt: jest.fn(),
-      resetFailedAttempts: jest.fn(),
-      getRemainingLockTime: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -90,7 +89,6 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     prismaService = module.get(PrismaService);
     jwtService = module.get(JwtService);
-    configService = module.get(ConfigService);
     refreshTokenService = module.get(RefreshTokenService);
     auditService = module.get(AuditService);
     progressiveLockService = module.get(ProgressiveLockService);
@@ -116,9 +114,9 @@ describe('AuthService', () => {
       };
 
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
-      prismaService.user.create.mockResolvedValue(mockUser);
-      jwtService.sign.mockReturnValue('access-token');
-      refreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
+      mockPrismaService.user.create.mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue('access-token');
+      mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
 
       const result = await service.register(registerDto);
 
@@ -151,14 +149,14 @@ describe('AuthService', () => {
         password: 'password123',
       };
 
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
-      progressiveLockService.isLocked.mockResolvedValue(false);
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockProgressiveLockService.isLocked.mockResolvedValue(false);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      progressiveLockService.resetFailedAttempts.mockResolvedValue(undefined);
-      prismaService.user.update.mockResolvedValue(mockUser);
-      jwtService.sign.mockReturnValue('access-token');
-      refreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
-      auditService.logLogin.mockResolvedValue(undefined);
+      mockProgressiveLockService.resetFailedAttempts.mockResolvedValue(undefined);
+      mockPrismaService.user.update.mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue('access-token');
+      mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
+      mockAuditService.logLogin.mockResolvedValue(undefined);
 
       const result = await service.login(loginDto, '127.0.0.1', 'test-agent');
 
@@ -186,8 +184,8 @@ describe('AuthService', () => {
         password: 'password123',
       };
 
-      prismaService.user.findUnique.mockResolvedValue(null);
-      auditService.logLoginFailed.mockResolvedValue(undefined);
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockAuditService.logLoginFailed.mockResolvedValue(undefined);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
       expect(auditService.logLoginFailed).toHaveBeenCalledWith(
@@ -204,9 +202,9 @@ describe('AuthService', () => {
         password: 'password123',
       };
 
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
-      progressiveLockService.isLocked.mockResolvedValue(true);
-      progressiveLockService.getRemainingLockTime.mockResolvedValue(5);
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockProgressiveLockService.isLocked.mockResolvedValue(true);
+      mockProgressiveLockService.getRemainingLockTime.mockResolvedValue(5);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
       await expect(service.login(loginDto)).rejects.toThrow('Conta bloqueada');
@@ -218,15 +216,15 @@ describe('AuthService', () => {
         password: 'wrongpassword',
       };
 
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
-      progressiveLockService.isLocked.mockResolvedValue(false);
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockProgressiveLockService.isLocked.mockResolvedValue(false);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-      progressiveLockService.recordFailedAttempt.mockResolvedValue({
+      mockProgressiveLockService.recordFailedAttempt.mockResolvedValue({
         locked: false,
         lockMinutes: 0,
         attempts: 1,
       });
-      auditService.logLoginFailed.mockResolvedValue(undefined);
+      mockAuditService.logLoginFailed.mockResolvedValue(undefined);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
       expect(progressiveLockService.recordFailedAttempt).toHaveBeenCalledWith(
@@ -241,8 +239,8 @@ describe('AuthService', () => {
       const userId = '123';
       const refreshToken = 'refresh-token';
 
-      refreshTokenService.revokeRefreshToken.mockResolvedValue(undefined);
-      auditService.logLogout.mockResolvedValue(undefined);
+      mockRefreshTokenService.revokeRefreshToken.mockResolvedValue(undefined);
+      mockAuditService.logLogout.mockResolvedValue(undefined);
 
       await service.logout(userId, refreshToken, '127.0.0.1', 'test-agent');
 
@@ -255,11 +253,11 @@ describe('AuthService', () => {
     it('should successfully refresh access token', async () => {
       const refreshToken = 'valid-refresh-token';
 
-      refreshTokenService.validateRefreshToken.mockResolvedValue({
+      mockRefreshTokenService.validateRefreshToken.mockResolvedValue({
         userId: mockUser.id,
       } as any);
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
-      jwtService.sign.mockReturnValue('new-access-token');
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue('new-access-token');
 
       const result = await service.refreshAccessToken(refreshToken);
 
@@ -270,7 +268,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException with invalid refresh token', async () => {
       const refreshToken = 'invalid-refresh-token';
 
-      refreshTokenService.validateRefreshToken.mockResolvedValue(null);
+      mockRefreshTokenService.validateRefreshToken.mockResolvedValue(null);
 
       await expect(service.refreshAccessToken(refreshToken)).rejects.toThrow(
         UnauthorizedException,
