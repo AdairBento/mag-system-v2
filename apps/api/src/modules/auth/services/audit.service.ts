@@ -1,90 +1,60 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
 
-interface AuditLogData {
-  userId?: string;
-  action: string;
-  resource: string;
-  resourceId?: string;
-  metadata?: Record<string, any>;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
-interface AuditLogResult {
-  data: any[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+export type AuditAction =
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'LOGIN_FAILED'
+  | 'REGISTER'
+  | 'REFRESH_TOKEN'
+  | 'PASSWORD_RESET'
+  | 'ACCOUNT_LOCKED'
+  | 'ACCOUNT_UNLOCKED';
 
 @Injectable()
 export class AuditService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Cria um log de auditoria genérico
-   * @param data - Dados do log
-   */
-  async log(data: AuditLogData): Promise<void> {
-    await this.prisma.auditLog.create({
-      data: {
-        userId: data.userId,
-        action: data.action,
-        resource: data.resource,
-        resourceId: data.resourceId,
-        metadata: data.metadata,
-        ipAddress: data.ipAddress,
-        userAgent: data.userAgent,
-      },
-    });
-  }
-
-  // ============================================
-  // LOGS DE AUTENTICAÇÃO
-  // ============================================
-
-  /**
-   * Log de login bem-sucedido
+   * Registra login bem-sucedido
    */
   async logLogin(
     userId: string,
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
-    await this.log({
+    await this.createLog('LOGIN', 'User', userId, {
       userId,
-      action: 'LOGIN',
-      resource: 'User',
-      resourceId: userId,
       ipAddress,
       userAgent,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Atualiza lastLoginAt do usuário
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: new Date() },
     });
   }
 
   /**
-   * Log de logout
+   * Registra logout
    */
   async logLogout(
     userId: string,
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
-    await this.log({
+    await this.createLog('LOGOUT', 'User', userId, {
       userId,
-      action: 'LOGOUT',
-      resource: 'User',
-      resourceId: userId,
       ipAddress,
       userAgent,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /**
-   * Log de falha de login
+   * Registra tentativa de login falhada
    */
   async logLoginFailed(
     email: string,
@@ -92,186 +62,82 @@ export class AuditService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
-    await this.log({
-      action: 'LOGIN_FAILED',
-      resource: 'User',
-      metadata: { email, reason },
+    await this.createLog('LOGIN_FAILED', 'User', null, {
+      email,
+      reason,
       ipAddress,
       userAgent,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /**
-   * Log de conta bloqueada por tentativas
+   * Registra novo registro de usuário
+   */
+  async logRegister(
+    userId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<void> {
+    await this.createLog('REGISTER', 'User', userId, {
+      userId,
+      ipAddress,
+      userAgent,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Registra refresh de token
+   */
+  async logRefreshToken(
+    userId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<void> {
+    await this.createLog('REFRESH_TOKEN', 'User', userId, {
+      userId,
+      ipAddress,
+      userAgent,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Registra bloqueio de conta
    */
   async logAccountLocked(
     userId: string,
-    attempts: number,
-    lockUntil: Date,
-    ipAddress?: string,
+    reason: string,
+    lockDurationMinutes: number,
   ): Promise<void> {
-    await this.log({
+    await this.createLog('ACCOUNT_LOCKED', 'User', userId, {
       userId,
-      action: 'ACCOUNT_LOCKED',
-      resource: 'User',
-      resourceId: userId,
-      metadata: { attempts, lockUntil: lockUntil.toISOString() },
-      ipAddress,
+      reason,
+      lockDurationMinutes,
+      timestamp: new Date().toISOString(),
     });
   }
 
-  // ============================================
-  // LOGS DE CRUD GENÉRICO
-  // ============================================
-
   /**
-   * Log de criação de recurso
+   * Método genérico para criar log
    */
-  async logCreate(
-    userId: string,
+  private async createLog(
+    action: AuditAction,
     resource: string,
-    resourceId: string,
-    metadata?: Record<string, any>,
+    resourceId: string | null,
+    metadata: Record<string, any>,
   ): Promise<void> {
-    await this.log({
-      userId,
-      action: 'CREATE',
-      resource,
-      resourceId,
-      metadata,
-    });
-  }
-
-  /**
-   * Log de atualização de recurso
-   */
-  async logUpdate(
-    userId: string,
-    resource: string,
-    resourceId: string,
-    changes?: Record<string, any>,
-  ): Promise<void> {
-    await this.log({
-      userId,
-      action: 'UPDATE',
-      resource,
-      resourceId,
-      metadata: changes,
-    });
-  }
-
-  /**
-   * Log de deleção de recurso
-   */
-  async logDelete(
-    userId: string,
-    resource: string,
-    resourceId: string,
-  ): Promise<void> {
-    await this.log({
-      userId,
-      action: 'DELETE',
-      resource,
-      resourceId,
-    });
-  }
-
-  // ============================================
-  // CONSULTAS
-  // ============================================
-
-  /**
-   * Busca logs de auditoria por filtros
-   */
-  async findLogs(filters: {
-    userId?: string;
-    action?: string;
-    resource?: string;
-    startDate?: Date;
-    endDate?: Date;
-    page?: number;
-    limit?: number;
-  }): Promise<AuditLogResult> {
-    const { userId, action, resource, startDate, endDate, page = 1, limit = 50 } = filters;
-
-    const where: any = {};
-
-    if (userId) where.userId = userId;
-    if (action) where.action = action;
-    if (resource) where.resource = resource;
-    if (startDate || endDate) {
-      where.createdAt = {};
-      if (startDate) where.createdAt.gte = startDate;
-      if (endDate) where.createdAt.lte = endDate;
-    }
-
-    const [data, total] = await Promise.all([
-      this.prisma.auditLog.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      }),
-      this.prisma.auditLog.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  /**
-   * Estatísticas de ações por usuário
-   */
-  async getUserStats(userId: string, days = 30) {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-
-    const logs = await this.prisma.auditLog.findMany({
-      where: {
-        userId,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-      select: {
-        action: true,
-        resource: true,
+    await this.prisma.auditLog.create({
+      data: {
+        userId: metadata.userId || null,
+        action,
+        resource,
+        resourceId,
+        metadata,
+        ipAddress: metadata.ipAddress || null,
+        userAgent: metadata.userAgent || null,
       },
     });
-
-    // Contar por ação
-    const actionCounts = logs.reduce((acc: Record<string, number>, log) => {
-      acc[log.action] = (acc[log.action] || 0) + 1;
-      return acc;
-    }, {});
-
-    // Contar por recurso
-    const resourceCounts = logs.reduce((acc: Record<string, number>, log) => {
-      acc[log.resource] = (acc[log.resource] || 0) + 1;
-      return acc;
-    }, {});
-
-    return {
-      totalActions: logs.length,
-      actionCounts,
-      resourceCounts,
-      period: `${days} days`,
-    };
   }
 }

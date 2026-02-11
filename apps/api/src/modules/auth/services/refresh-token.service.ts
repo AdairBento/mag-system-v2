@@ -1,83 +1,78 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/database/prisma.service';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class RefreshTokenService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
     private readonly config: ConfigService,
   ) {}
 
   /**
-   * Gera um novo refresh token para o usuário
-   * @param userId - ID do usuário
-   * @param ipAddress - IP da requisição (opcional)
-   * @param userAgent - User agent do navegador (opcional)
-   * @returns Refresh token gerado (string hexadecimal de 128 chars)
+   * Gera e armazena um novo refresh token
    */
   async generateRefreshToken(
     userId: string,
     ipAddress?: string,
     userAgent?: string,
   ): Promise<string> {
-    // Gerar token único criptograficamente seguro
-    const refreshToken = crypto.randomBytes(64).toString('hex');
+    const payload = { sub: userId, type: 'refresh' };
+    const expiresIn = this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d');
 
-    // Calcular expiração (30 dias)
+    const token = this.jwtService.sign(payload, { expiresIn });
+
+    // Calcula data de expiração
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 dias
 
-    // Salvar sessão no banco
+    // Armazena sessão no banco
     await this.prisma.session.create({
       data: {
         userId,
-        refreshToken,
+        refreshToken: token,
         ipAddress,
         userAgent,
         expiresAt,
       },
     });
 
-    return refreshToken;
+    return token;
   }
 
   /**
-   * Valida um refresh token
-   * @param token - Refresh token a ser validado
-   * @returns userId se válido, null se inválido/expirado
+   * Valida refresh token e retorna userId
    */
-  async validateRefreshToken(
-    token: string,
-  ): Promise<{ userId: string } | null> {
-    const session = await this.prisma.session.findUnique({
-      where: { refreshToken: token },
-      include: { user: { select: { id: true, status: true } } },
-    });
+  async validateRefreshToken(token: string): Promise<{ userId: string } | null> {
+    try {
+      // Verifica JWT
+      const payload = this.jwtService.verify(token);
 
-    if (!session) {
+      // Busca sessão no banco
+      const session = await this.prisma.session.findUnique({
+        where: { refreshToken: token },
+      });
+
+      if (!session) {
+        return null;
+      }
+
+      // Verifica expiração
+      if (session.expiresAt < new Date()) {
+        await this.revokeRefreshToken(token);
+        return null;
+      }
+
+      return { userId: payload.sub };
+    } catch (error) {
       return null;
     }
-
-    // Verificar expiração
-    if (session.expiresAt < new Date()) {
-      // Token expirado, remover da base
-      await this.prisma.session.delete({ where: { id: session.id } });
-      return null;
-    }
-
-    // Verificar se usuário está ativo
-    if (session.user.status !== 'ACTIVE') {
-      return null;
-    }
-
-    return { userId: session.user.id };
   }
 
   /**
-   * Revoga um refresh token específico
-   * @param token - Token a ser revogado
+   * Revoga refresh token (logout)
    */
   async revokeRefreshToken(token: string): Promise<void> {
     await this.prisma.session.deleteMany({
@@ -86,19 +81,18 @@ export class RefreshTokenService {
   }
 
   /**
-   * Revoga todas as sessões de um usuário (logout global)
-   * @param userId - ID do usuário
+   * Revoga todas as sessões do usuário
    */
-  async revokeAllUserSessions(userId: string): Promise<void> {
+  async revokeAllUserTokens(userId: string): Promise<void> {
     await this.prisma.session.deleteMany({
       where: { userId },
     });
   }
 
   /**
-   * Remove sessões expiradas do banco (cleanup job)
+   * Limpa sessões expiradas (job agendado)
    */
-  async cleanupExpiredSessions(): Promise<number> {
+  async cleanExpiredSessions(): Promise<number> {
     const result = await this.prisma.session.deleteMany({
       where: {
         expiresAt: {
@@ -108,30 +102,5 @@ export class RefreshTokenService {
     });
 
     return result.count;
-  }
-
-  /**
-   * Lista sessões ativas de um usuário
-   * @param userId - ID do usuário
-   */
-  async getUserSessions(userId: string) {
-    return this.prisma.session.findMany({
-      where: {
-        userId,
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
-      select: {
-        id: true,
-        ipAddress: true,
-        userAgent: true,
-        createdAt: true,
-        expiresAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
   }
 }

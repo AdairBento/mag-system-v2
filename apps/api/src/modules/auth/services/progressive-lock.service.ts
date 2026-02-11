@@ -1,17 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
 import { AuditService } from './audit.service';
 
-/**
- * Serviço de bloqueio progressivo para prevenir brute-force
- * 
- * Lógica:
- * - 1-2 tentativas: sem bloqueio
- * - 3 tentativas: 5 minutos de bloqueio
- * - 4 tentativas: 15 minutos de bloqueio
- * - 5 tentativas: 1 hora de bloqueio
- * - 6+ tentativas: 24 horas de bloqueio
- */
+const MAX_ATTEMPTS = 5;
+const LOCK_DURATION_MINUTES = 15;
+
 @Injectable()
 export class ProgressiveLockService {
   constructor(
@@ -20,9 +13,7 @@ export class ProgressiveLockService {
   ) {}
 
   /**
-   * Verifica se o usuário está bloqueado
-   * @param userId - ID do usuário
-   * @returns true se bloqueado, false caso contrário
+   * Verifica se a conta está bloqueada
    */
   async isLocked(userId: string): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
@@ -30,24 +21,32 @@ export class ProgressiveLockService {
       select: { lockedUntil: true },
     });
 
-    if (!user || !user.lockedUntil) {
+    if (!user?.lockedUntil) {
       return false;
     }
 
-    // Se o bloqueio já passou, desbloquear automaticamente
-    if (user.lockedUntil < new Date()) {
-      await this.unlock(userId);
-      return false;
-    }
-
-    return true;
+    return user.lockedUntil > new Date();
   }
 
   /**
-   * Registra uma tentativa de login falha
-   * @param userId - ID do usuário
-   * @param ipAddress - IP da tentativa
-   * @returns Tempo de bloqueio em minutos (0 se não bloqueado)
+   * Retorna tempo restante de bloqueio em minutos
+   */
+  async getRemainingLockTime(userId: string): Promise<number> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { lockedUntil: true },
+    });
+
+    if (!user?.lockedUntil || user.lockedUntil <= new Date()) {
+      return 0;
+    }
+
+    const diffMs = user.lockedUntil.getTime() - Date.now();
+    return Math.ceil(diffMs / 60000); // minutos
+  }
+
+  /**
+   * Registra tentativa falhada e bloqueia se necessário
    */
   async recordFailedAttempt(
     userId: string,
@@ -64,47 +63,45 @@ export class ProgressiveLockService {
 
     const attempts = user.failedLoginAttempts + 1;
 
-    // Calcular tempo de bloqueio baseado nas tentativas
-    const lockMinutes = this.calculateLockMinutes(attempts);
-
-    if (lockMinutes > 0) {
-      // Aplicar bloqueio
-      const lockUntil = new Date();
-      lockUntil.setMinutes(lockUntil.getMinutes() + lockMinutes);
+    if (attempts >= MAX_ATTEMPTS) {
+      const lockedUntil = new Date();
+      lockedUntil.setMinutes(lockedUntil.getMinutes() + LOCK_DURATION_MINUTES);
 
       await this.prisma.user.update({
         where: { id: userId },
         data: {
           failedLoginAttempts: attempts,
-          lockedUntil: lockUntil,
+          lockedUntil,
         },
       });
 
-      // Log de bloqueio
       await this.auditService.logAccountLocked(
         userId,
-        attempts,
-        lockUntil,
-        ipAddress,
+        `${MAX_ATTEMPTS} tentativas de login falhadas`,
+        LOCK_DURATION_MINUTES,
       );
 
-      return { locked: true, lockMinutes, attempts };
-    } else {
-      // Apenas incrementar tentativas
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          failedLoginAttempts: attempts,
-        },
-      });
-
-      return { locked: false, lockMinutes: 0, attempts };
+      return {
+        locked: true,
+        lockMinutes: LOCK_DURATION_MINUTES,
+        attempts,
+      };
     }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { failedLoginAttempts: attempts },
+    });
+
+    return {
+      locked: false,
+      lockMinutes: 0,
+      attempts,
+    };
   }
 
   /**
-   * Reseta tentativas falhas após login bem-sucedido
-   * @param userId - ID do usuário
+   * Reseta tentativas falhadas (após login bem-sucedido)
    */
   async resetFailedAttempts(userId: string): Promise<void> {
     await this.prisma.user.update({
@@ -117,53 +114,18 @@ export class ProgressiveLockService {
   }
 
   /**
-   * Desbloqueia um usuário manualmente
-   * @param userId - ID do usuário
+   * Verifica bloqueio antes de login
+   * Lança exceção se bloqueado
    */
-  async unlock(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        failedLoginAttempts: 0,
-        lockedUntil: null,
-      },
-    });
-  }
+  async checkLockBeforeLogin(userId: string): Promise<void> {
+    const locked = await this.isLocked(userId);
 
-  /**
-   * Calcula o tempo de bloqueio baseado no número de tentativas
-   * @param attempts - Número de tentativas falhas
-   * @returns Tempo de bloqueio em minutos (0 se não deve bloquear)
-   */
-  private calculateLockMinutes(attempts: number): number {
-    if (attempts < 3) return 0; // 1-2 tentativas: sem bloqueio
-    if (attempts === 3) return 5; // 3 tentativas: 5 minutos
-    if (attempts === 4) return 15; // 4 tentativas: 15 minutos
-    if (attempts === 5) return 60; // 5 tentativas: 1 hora
-    return 1440; // 6+ tentativas: 24 horas
-  }
+    if (locked) {
+      const remainingMinutes = await this.getRemainingLockTime(userId);
 
-  /**
-   * Retorna tempo restante de bloqueio
-   * @param userId - ID do usuário
-   * @returns Tempo restante em minutos (0 se não bloqueado)
-   */
-  async getRemainingLockTime(userId: string): Promise<number> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { lockedUntil: true },
-    });
-
-    if (!user || !user.lockedUntil) {
-      return 0;
+      throw new UnauthorizedException(
+        `Conta bloqueada. Tente novamente em ${remainingMinutes} minuto(s).`,
+      );
     }
-
-    const now = new Date();
-    if (user.lockedUntil < now) {
-      return 0;
-    }
-
-    const diffMs = user.lockedUntil.getTime() - now.getTime();
-    return Math.ceil(diffMs / 1000 / 60); // Converter para minutos
   }
 }
