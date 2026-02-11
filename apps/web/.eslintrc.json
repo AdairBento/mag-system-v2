@@ -1,7 +1,0 @@
-{
-  "root": true,
-  "extends": ["@mag-system/eslint-config/next"],
-  "parserOptions": {
-    "project": "./tsconfig.json"
-  }
-}
