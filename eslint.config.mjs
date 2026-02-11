@@ -1,8 +1,8 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
-import nextPlugin from "@next/eslint-plugin-next";
 
 export default [
+  // IGNORAR ARQUIVOS GERADOS
   {
     ignores: [
       "**/node_modules/**",
@@ -15,21 +15,11 @@ export default [
     ],
   },
 
+  // BASE JS + TS
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
-  // 🌐 NEXT.JS
-  {
-    files: ["apps/web/**/*.{ts,tsx,js,jsx}"],
-    plugins: {
-      "@next/next": nextPlugin,
-    },
-    rules: {
-      ...nextPlugin.configs["core-web-vitals"].rules,
-    },
-  },
-
-  // 🌍 Regras globais
+  // REGRAS GLOBAIS
   {
     rules: {
       "no-console": "off",
@@ -41,7 +31,7 @@ export default [
     },
   },
 
-  // 📦 Packages mais rigorosos
+  // PACKAGES MAIS RIGOROSOS
   {
     files: ["packages/**/*.{ts,tsx}"],
     rules: {
@@ -49,12 +39,20 @@ export default [
     },
   },
 
-  // 🧪 Testes mais flexíveis
+  // TESTES MAIS FLEXÍVEIS
   {
     files: ["**/*.spec.ts", "**/*.test.ts", "**/__tests__/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
+    },
+  },
+
+  // API (Nest)
+  {
+    files: ["apps/api/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];
