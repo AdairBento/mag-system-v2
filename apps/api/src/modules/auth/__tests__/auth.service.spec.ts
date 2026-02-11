@@ -7,6 +7,7 @@ import { PrismaService } from '@/database/prisma.service';
 import { RefreshTokenService } from '../services/refresh-token.service';
 import { AuditService } from '../services/audit.service';
 import { ProgressiveLockService } from '../services/progressive-lock.service';
+import { RegisterDto } from '../dto';
 import * as bcrypt from 'bcryptjs';
 
 jest.mock('bcryptjs');
@@ -120,11 +121,11 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    const registerDto = {
+    const registerDto: RegisterDto = {
       email: 'newuser@example.com',
       password: 'StrongPass123!',
       name: 'New User',
-      role: 'OPERATOR' as const,
+      role: 'OPERATOR' as any,
     };
 
     it('should successfully register a new user', async () => {
@@ -153,8 +154,8 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('user');
     });
 
-    it('should use default OPERATOR role when not specified', async () => {
-      const dtoWithoutRole = {
+    it('should use default OPERATOR role when role is undefined', async () => {
+      const dtoWithoutRole: Partial<RegisterDto> = {
         email: 'newuser@example.com',
         password: 'StrongPass123!',
         name: 'New User',
@@ -166,7 +167,7 @@ describe('AuthService', () => {
       mockJwtService.sign.mockReturnValue('token');
       mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh');
 
-      await service.register(dtoWithoutRole, '127.0.0.1', 'agent');
+      await service.register(dtoWithoutRole as RegisterDto, '127.0.0.1', 'agent');
 
       expect(mockPrismaService.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
