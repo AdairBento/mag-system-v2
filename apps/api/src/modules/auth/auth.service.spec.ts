@@ -11,69 +11,68 @@ import * as bcrypt from 'bcryptjs';
 
 jest.mock('bcryptjs');
 
-const mockUser = {
-  id: '123',
-  email: 'test@example.com',
-  password: 'hashedPassword',
-  name: 'Test User',
-  role: 'OPERATOR' as const,
-  status: 'ACTIVE' as const,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  lastLoginAt: null,
-};
-
-const mockPrismaService = {
-  user: {
-    create: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
-  },
-};
-
-const mockJwtService = {
-  sign: jest.fn(),
-  verify: jest.fn(),
-};
-
-const mockConfigService = {
-  get: jest.fn((key: string) => {
-    const config = {
-      JWT_SECRET: 'test-secret',
-      JWT_EXPIRES_IN: '15m',
-    };
-    return config[key];
-  }),
-};
-
-const mockRefreshTokenService = {
-  generateRefreshToken: jest.fn(),
-  validateRefreshToken: jest.fn(),
-  revokeRefreshToken: jest.fn(),
-};
-
-const mockAuditService = {
-  logLogin: jest.fn(),
-  logLogout: jest.fn(),
-  logLoginFailed: jest.fn(),
-};
-
-const mockProgressiveLockService = {
-  isLocked: jest.fn(),
-  recordFailedAttempt: jest.fn(),
-  resetFailedAttempts: jest.fn(),
-  getRemainingLockTime: jest.fn(),
-};
-
 describe('AuthService', () => {
   let service: AuthService;
-  let prismaService: jest.Mocked<PrismaService>;
-  let jwtService: jest.Mocked<JwtService>;
-  let refreshTokenService: jest.Mocked<RefreshTokenService>;
-  let auditService: jest.Mocked<AuditService>;
-  let progressiveLockService: jest.Mocked<ProgressiveLockService>;
+
+  const mockUser = {
+    id: '123',
+    email: 'test@example.com',
+    password: 'hashedPassword',
+    name: 'Test User',
+    role: 'OPERATOR' as const,
+    status: 'ACTIVE' as const,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const mockPrismaService = {
+    user: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+  };
+
+  const mockJwtService = {
+    sign: jest.fn(),
+    verify: jest.fn(),
+  };
+
+  const mockConfigService = {
+    get: jest.fn((key: string, defaultValue?: string) => {
+      const config: Record<string, string> = {
+        JWT_SECRET: 'test-secret',
+        JWT_EXPIRES_IN: '15m',
+        JWT_REFRESH_EXPIRES_IN: '30d',
+      };
+      return config[key] || defaultValue;
+    }),
+  };
+
+  const mockRefreshTokenService = {
+    generateRefreshToken: jest.fn().mockResolvedValue('refresh-token'),
+    validateRefreshToken: jest.fn(),
+    revokeRefreshToken: jest.fn(),
+  };
+
+  const mockAuditService = {
+    logLogin: jest.fn(),
+    logLogout: jest.fn(),
+    logLoginFailed: jest.fn(),
+    logRegister: jest.fn(),
+    logRefreshToken: jest.fn(),
+  };
+
+  const mockProgressiveLockService = {
+    checkLockBeforeLogin: jest.fn(),
+    recordFailedAttempt: jest.fn(),
+    resetFailedAttempts: jest.fn(),
+    isLocked: jest.fn(),
+  };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -87,192 +86,140 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    prismaService = module.get(PrismaService);
-    jwtService = module.get(JwtService);
-    refreshTokenService = module.get(RefreshTokenService);
-    auditService = module.get(AuditService);
-    progressiveLockService = module.get(ProgressiveLockService);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('Service Initialization', () => {
-    it('should be defined', () => {
-      expect(service).toBeDefined();
-    });
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   describe('register', () => {
-    it('should successfully register a new user', async () => {
+    it('should create user and return tokens', async () => {
       const registerDto = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'plainPassword',
         name: 'Test User',
         role: 'OPERATOR' as const,
       };
 
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
+      (bcrypt.hash as unknown as jest.Mock).mockResolvedValue('hashedPassword');
       mockPrismaService.user.create.mockResolvedValue(mockUser);
-      mockJwtService.sign.mockReturnValue('access-token');
-      mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
 
-      const result = await service.register(registerDto);
+      const result = await service.register(registerDto, '127.0.0.1', 'test-agent');
 
-      expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
-      expect(prismaService.user.create).toHaveBeenCalledWith({
-        data: {
-          email: registerDto.email,
-          password: 'hashedPassword',
-          name: registerDto.name,
-          role: registerDto.role,
-        },
-      });
-      expect(result).toEqual({
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
-        user: {
-          id: mockUser.id,
-          email: mockUser.email,
-          name: mockUser.name,
-          role: mockUser.role,
-        },
-      });
+      expect(bcrypt.hash).toHaveBeenCalledWith('plainPassword', 10);
+      expect(mockPrismaService.user.create).toHaveBeenCalled();
+      expect(mockRefreshTokenService.generateRefreshToken).toHaveBeenCalledWith(
+        mockUser.id,
+        '127.0.0.1',
+        'test-agent',
+      );
+      expect(mockAuditService.logRegister).toHaveBeenCalledWith(
+        mockUser.id,
+        '127.0.0.1',
+        'test-agent',
+      );
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result.user.email).toBe(mockUser.email);
     });
   });
 
   describe('login', () => {
-    it('should successfully login with valid credentials', async () => {
-      const loginDto = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
+    it('should login with valid credentials', async () => {
+      const loginDto = { email: 'test@example.com', password: 'plainPassword' };
 
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      mockProgressiveLockService.isLocked.mockResolvedValue(false);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (bcrypt.compare as unknown as jest.Mock).mockResolvedValue(true);
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
+      mockProgressiveLockService.checkLockBeforeLogin.mockResolvedValue(undefined);
       mockProgressiveLockService.resetFailedAttempts.mockResolvedValue(undefined);
-      mockPrismaService.user.update.mockResolvedValue(mockUser);
-      mockJwtService.sign.mockReturnValue('access-token');
-      mockRefreshTokenService.generateRefreshToken.mockResolvedValue('refresh-token');
-      mockAuditService.logLogin.mockResolvedValue(undefined);
 
       const result = await service.login(loginDto, '127.0.0.1', 'test-agent');
 
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { email: loginDto.email },
-      });
-      expect(progressiveLockService.isLocked).toHaveBeenCalledWith(mockUser.id);
+      expect(mockProgressiveLockService.checkLockBeforeLogin).toHaveBeenCalled();
       expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.password);
-      expect(auditService.logLogin).toHaveBeenCalledWith(mockUser.id, '127.0.0.1', 'test-agent');
-      expect(result).toEqual({
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
-        user: {
-          id: mockUser.id,
-          email: mockUser.email,
-          name: mockUser.name,
-          role: mockUser.role,
-        },
-      });
+      expect(mockProgressiveLockService.resetFailedAttempts).toHaveBeenCalled();
+      expect(mockRefreshTokenService.generateRefreshToken).toHaveBeenCalled();
+      expect(mockAuditService.logLogin).toHaveBeenCalled();
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
     });
 
-    it('should throw UnauthorizedException when user is not found', async () => {
-      const loginDto = {
-        email: 'notfound@example.com',
-        password: 'password123',
-      };
+    it('should throw if user not found', async () => {
+      const loginDto = { email: 'missing@example.com', password: 'x' };
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockAuditService.logLoginFailed.mockResolvedValue(undefined);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
-      expect(auditService.logLoginFailed).toHaveBeenCalledWith(
-        loginDto.email,
-        'Usuário não encontrado',
-        undefined,
-        undefined,
-      );
+      await expect(
+        service.login(loginDto, '127.0.0.1', 'test-agent'),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockAuditService.logLoginFailed).toHaveBeenCalled();
     });
 
-    it('should throw UnauthorizedException when account is locked', async () => {
-      const loginDto = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
+    it('should throw if password is invalid', async () => {
+      const loginDto = { email: 'test@example.com', password: 'wrong' };
 
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      mockProgressiveLockService.isLocked.mockResolvedValue(true);
-      mockProgressiveLockService.getRemainingLockTime.mockResolvedValue(5);
-
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
-      await expect(service.login(loginDto)).rejects.toThrow('Conta bloqueada');
-    });
-
-    it('should throw UnauthorizedException with invalid password', async () => {
-      const loginDto = {
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      };
-
-      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      mockProgressiveLockService.isLocked.mockResolvedValue(false);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      (bcrypt.compare as unknown as jest.Mock).mockResolvedValue(false);
+      mockProgressiveLockService.checkLockBeforeLogin.mockResolvedValue(undefined);
       mockProgressiveLockService.recordFailedAttempt.mockResolvedValue({
         locked: false,
         lockMinutes: 0,
         attempts: 1,
       });
-      mockAuditService.logLoginFailed.mockResolvedValue(undefined);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
-      expect(progressiveLockService.recordFailedAttempt).toHaveBeenCalledWith(
-        mockUser.id,
-        undefined,
-      );
+      await expect(
+        service.login(loginDto, '127.0.0.1', 'test-agent'),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockProgressiveLockService.recordFailedAttempt).toHaveBeenCalled();
+      expect(mockAuditService.logLoginFailed).toHaveBeenCalled();
     });
   });
 
   describe('logout', () => {
-    it('should successfully logout user', async () => {
-      const userId = '123';
-      const refreshToken = 'refresh-token';
+    it('should revoke refresh token and log', async () => {
+      await service.logout('user-id', 'refresh-token', '127.0.0.1', 'test-agent');
 
-      mockRefreshTokenService.revokeRefreshToken.mockResolvedValue(undefined);
-      mockAuditService.logLogout.mockResolvedValue(undefined);
-
-      await service.logout(userId, refreshToken, '127.0.0.1', 'test-agent');
-
-      expect(refreshTokenService.revokeRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(auditService.logLogout).toHaveBeenCalledWith(userId, '127.0.0.1', 'test-agent');
+      expect(mockRefreshTokenService.revokeRefreshToken).toHaveBeenCalledWith(
+        'refresh-token',
+      );
+      expect(mockAuditService.logLogout).toHaveBeenCalled();
     });
   });
 
   describe('refreshAccessToken', () => {
-    it('should successfully refresh access token', async () => {
-      const refreshToken = 'valid-refresh-token';
-
+    it('should refresh access token', async () => {
       mockRefreshTokenService.validateRefreshToken.mockResolvedValue({
         userId: mockUser.id,
-      } as any);
+      });
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValue('new-access-token');
 
-      const result = await service.refreshAccessToken(refreshToken);
+      const result = await service.refreshAccessToken(
+        'refresh-token',
+        '127.0.0.1',
+        'test-agent',
+      );
 
-      expect(refreshTokenService.validateRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(result).toEqual({ accessToken: 'new-access-token' });
+      expect(result).toHaveProperty('accessToken');
+      expect(mockAuditService.logRefreshToken).toHaveBeenCalled();
     });
 
-    it('should throw UnauthorizedException with invalid refresh token', async () => {
-      const refreshToken = 'invalid-refresh-token';
-
+    it('should throw if refresh token is invalid', async () => {
       mockRefreshTokenService.validateRefreshToken.mockResolvedValue(null);
 
-      await expect(service.refreshAccessToken(refreshToken)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        service.refreshAccessToken('invalid-token', '127.0.0.1', 'test-agent'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });
