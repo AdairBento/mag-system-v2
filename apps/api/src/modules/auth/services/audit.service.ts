@@ -11,6 +11,16 @@ interface AuditLogData {
   userAgent?: string;
 }
 
+interface AuditLogResult {
+  data: any[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 @Injectable()
 export class AuditService {
   constructor(private readonly prisma: PrismaService) {}
@@ -181,7 +191,7 @@ export class AuditService {
     endDate?: Date;
     page?: number;
     limit?: number;
-  }) {
+  }): Promise<AuditLogResult> {
     const { userId, action, resource, startDate, endDate, page = 1, limit = 50 } = filters;
 
     const where: any = {};
