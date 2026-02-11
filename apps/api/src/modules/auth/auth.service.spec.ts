@@ -67,13 +67,13 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AuthService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: RefreshTokenService, useValue: mockRefreshTokenService },
         { provide: AuditService, useValue: mockAuditService },
         { provide: ProgressiveLockService, useValue: mockProgressiveLockService },
+        AuthService,
       ],
     }).compile();
 
