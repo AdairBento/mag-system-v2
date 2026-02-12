@@ -8,16 +8,19 @@
     "prisma/schema.prisma"
   ],
   "scripts": {
-    "build": "npx prisma generate && npx tsc",
-    "type-check": "npx tsc --noEmit",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev",
-    "prisma:studio": "npx prisma studio",
-    "prisma:seed": "npx tsx prisma/seed/index.ts",
-    "prisma:reset": "npx prisma migrate reset"
-  },
-  "prisma": {
-    "seed": "npx tsx prisma/seed/index.ts"
+    "prisma:validate": "dotenv -e ../../.env -- prisma validate",
+    "build": "dotenv -e ../../.env -- prisma generate && tsc",
+    "prisma:format": "dotenv -e ../../.env -- prisma format",
+    "prisma:migrate:prod": "dotenv -e ../../.env.production -- prisma migrate deploy",
+    "prisma:seed:prod": "dotenv -e ../../.env.production -- tsx prisma/seed/index.ts",
+    "prisma:generate": "dotenv -e ../../.env -- prisma generate",
+    "type-check": "tsc --noEmit",
+    "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "prisma:seed": "dotenv -e ../../.env -- tsx prisma/seed/index.ts",
+    "prisma:reset": "dotenv -e ../../.env -- prisma migrate reset",
+    "prisma:studio": "dotenv -e ../../.env -- prisma studio",
+    "prisma:migrate:resolve": "dotenv -e ../../.env.production -- prisma migrate resolve",
+    "prisma:migrate:status": "dotenv -e ../../.env.production -- prisma migrate status"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
@@ -27,6 +30,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.2"
+    "@prisma/client": "6.19.2"
   }
 }
