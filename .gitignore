@@ -62,3 +62,7 @@ packages/**/package.json.backup-*
 logs/
 dist/
 *.log
+
+# Prisma backups e env production (local only)
+_BACKUPS_PRISMA/
+.env.production

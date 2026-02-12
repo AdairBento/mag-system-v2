@@ -13,26 +13,33 @@ datasource db {
 
 model User {
   id        String     @id @default(uuid()) @db.Uuid
-  email     String     @unique
-  password  String
+  email     String     @db.VarChar(320)
+  passwordHash  String  @map("password_hash")
   name      String
   role      UserRole   @default(OPERATOR)
   status    UserStatus @default(ACTIVE)
   
-  // ✨ NOVO: Enterprise Auth Fields
   failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
   lockedUntil         DateTime? @map("locked_until")
   lastLoginAt         DateTime? @map("last_login_at")
   
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
+  deletedAt DateTime?  @map("deleted_at")
 
-  // ✨ NOVO: Relations
   sessions  Session[]
   auditLogs AuditLog[]
+  createdRentals   Rental[]   @relation("RentalCreatedBy")
+  updatedRentals   Rental[]   @relation("RentalUpdatedBy")
+  createdInvoices  Invoice[]  @relation("InvoiceCreatedBy")
+  updatedInvoices  Invoice[]  @relation("InvoiceUpdatedBy")
+  createdContracts Contract[] @relation("ContractCreatedBy")
+  updatedContracts Contract[] @relation("ContractUpdatedBy")
 
+  @@index([email])
   @@index([role])
   @@index([status])
+  @@index([deletedAt])
   @@map("users")
 }
 
@@ -47,7 +54,6 @@ enum UserStatus {
   INACTIVE
 }
 
-// ✨ NOVO: Session Management
 model Session {
   id           String   @id @default(uuid()) @db.Uuid
   userId       String   @map("user_id") @db.Uuid
@@ -60,19 +66,17 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
-  @@index([refreshToken])
   @@index([expiresAt])
   @@map("sessions")
 }
 
-// ✨ NOVO: Audit Logging
 model AuditLog {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String?  @map("user_id") @db.Uuid
-  action    String   // "LOGIN", "LOGOUT", "CREATE_RENTAL"
-  resource  String   // "User", "Rental", "Vehicle"
+  action    String
+  resource  String
   resourceId String? @map("resource_id") @db.Uuid
-  metadata  Json?    // Dados adicionais
+  metadata  Json?
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent")
   createdAt DateTime @default(now()) @map("created_at")
@@ -93,9 +97,9 @@ model AuditLog {
 model Client {
   id           String       @id @default(uuid()) @db.Uuid
   name         String
-  email        String       @unique
-  phone        String
-  document     String       @unique
+  email        String?      @db.VarChar(320)
+  phone        String       @db.VarChar(20)
+  document     String       @db.VarChar(14)
   documentType DocumentType
   address      String?
   city         String?
@@ -104,14 +108,17 @@ model Client {
   status       ClientStatus @default(ACTIVE)
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
+  deletedAt    DateTime?    @map("deleted_at")
 
-  // Relations
   rentals      Rental[]
   invoices     Invoice[]
-  drivers      Driver[]     // ✅ NOVO: Cliente PJ pode ter motoristas
+  drivers      Driver[]
 
+  @@index([document])
   @@index([status])
   @@index([documentType])
+  @@index([email])
+  @@index([deletedAt])
   @@map("clients")
 }
 
@@ -132,12 +139,12 @@ enum ClientStatus {
 
 model Driver {
   id               String          @id @default(uuid()) @db.Uuid
-  clientId         String?         @map("client_id") @db.Uuid // ✅ NOVO: Vínculo com Cliente PJ
+  clientId         String?         @map("client_id") @db.Uuid
   name             String
-  email            String          @unique
-  phone            String
-  document         String          @unique
-  licenseNumber    String          @unique @map("license_number")
+  email            String?         @db.VarChar(320)
+  phone            String          @db.VarChar(20)
+  document         String          @db.VarChar(14)
+  licenseNumber    String          @db.VarChar(20) @map("license_number")
   licenseCategory  LicenseCategory @map("license_category")
   licenseExpiresAt DateTime        @map("license_expires_at")
   address          String?
@@ -147,15 +154,19 @@ model Driver {
   status           DriverStatus    @default(ACTIVE)
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime        @updatedAt @map("updated_at")
+  deletedAt        DateTime?       @map("deleted_at")
 
-  // Relations
-  client           Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull) // ✅ NOVO
+  client           Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
   rentals          Rental[]
   fines            Fine[]
 
-  @@index([clientId]) // ✅ NOVO
+  @@index([clientId])
+  @@index([document])
+  @@index([licenseNumber])
   @@index([status])
   @@index([licenseExpiresAt])
+  @@index([email])
+  @@index([deletedAt])
   @@map("drivers")
 }
 
@@ -166,9 +177,9 @@ enum LicenseCategory {
   C
   D
   E
-  AC  // ✅ NOVO: Categorias combinadas
-  AD  // ✅ NOVO
-  AE  // ✅ NOVO
+  AC
+  AD
+  AE
 }
 
 enum DriverStatus {
@@ -183,13 +194,13 @@ enum DriverStatus {
 
 model Vehicle {
   id                 String            @id @default(uuid()) @db.Uuid
-  plate              String            @unique
+  plate              String            @db.VarChar(10)
   brand              String
   model              String
-  year               Int
+  year               Int               @db.SmallInt
   color              String
-  registrationNumber String            @unique @map("registration_number")
-  chassis            String            @unique
+  registrationNumber String            @db.VarChar(20) @map("registration_number")
+  chassis            String            @db.VarChar(20)
   dailyRate          Decimal           @map("daily_rate") @db.Decimal(10, 2)
   mileage            Int               @default(0)
   fuelType           FuelType          @map("fuel_type")
@@ -199,8 +210,8 @@ model Vehicle {
   status             VehicleStatus     @default(AVAILABLE)
   createdAt          DateTime          @default(now()) @map("created_at")
   updatedAt          DateTime          @updatedAt @map("updated_at")
+  deletedAt          DateTime?         @map("deleted_at")
 
-  // Relations
   rentals            Rental[]
   maintenances       Maintenance[]
   inspections        Inspection[]
@@ -208,9 +219,13 @@ model Vehicle {
   fines              Fine[]
   accidents          Accident[]
 
+  @@index([plate])
+  @@index([registrationNumber])
+  @@index([chassis])
   @@index([status])
   @@index([category])
   @@index([brand, model])
+  @@index([deletedAt])
   @@map("vehicles")
 }
 
@@ -254,9 +269,9 @@ model Rental {
   driverId    String       @map("driver_id") @db.Uuid
   vehicleId   String       @map("vehicle_id") @db.Uuid
 
-  startDate   DateTime     @map("start_date")
-  endDate     DateTime     @map("end_date")
-  returnDate  DateTime?    @map("return_date")
+  startDate       DateTime     @map("start_date")
+  expectedEndDate DateTime     @map("expected_end_date")
+  returnedAt      DateTime?    @map("returned_at")
 
   dailyRate   Decimal      @map("daily_rate") @db.Decimal(10, 2)
   totalDays   Int          @map("total_days")
@@ -266,14 +281,21 @@ model Rental {
 
   status      RentalStatus @default(PENDING)
   notes       String?
-
+  
+  finalizedAt DateTime?    @map("finalized_at")
+  
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+  
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
 
-  // Relations
   client      Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
   driver      Driver       @relation(fields: [driverId], references: [id], onDelete: Restrict)
   vehicle     Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  createdBy   User?        @relation("RentalCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy   User?        @relation("RentalUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
 
   inspections Inspection[]
   contract    Contract?
@@ -284,7 +306,11 @@ model Rental {
   @@index([vehicleId])
   @@index([status])
   @@index([startDate])
-  @@index([endDate])
+  @@index([expectedEndDate])
+  @@index([returnedAt])
+  @@index([deletedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
   @@map("rentals")
 }
 
@@ -308,10 +334,20 @@ model Contract {
   status    ContractStatus @default(PENDING)
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @updatedAt @map("updated_at")
+  deletedAt DateTime?      @map("deleted_at")
+  
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
 
   rental    Rental         @relation(fields: [rentalId], references: [id], onDelete: Restrict)
+  createdBy User?          @relation("ContractCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy User?          @relation("ContractUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
 
+  @@index([rentalId])
   @@index([status])
+  @@index([deletedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
   @@map("contracts")
 }
 
@@ -337,7 +373,6 @@ model Inspection {
   createdAt DateTime         @default(now()) @map("created_at")
   updatedAt DateTime         @updatedAt @map("updated_at")
 
-  // Relations
   rental    Rental           @relation(fields: [rentalId], references: [id], onDelete: Restrict)
   vehicle   Vehicle          @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   damages   Damage[]
@@ -575,7 +610,7 @@ model Invoice {
   id            String        @id @default(uuid()) @db.Uuid
   clientId      String        @map("client_id") @db.Uuid
   rentalId      String?       @map("rental_id") @db.Uuid
-  invoiceNumber String        @unique @map("invoice_number")
+  invoiceNumber String        @db.VarChar(50) @map("invoice_number")
   amount        Decimal       @db.Decimal(10, 2)
   dueDate       DateTime      @map("due_date")
   paidDate      DateTime?     @map("paid_date")
@@ -584,15 +619,25 @@ model Invoice {
   notes         String?
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
+  deletedAt     DateTime?     @map("deleted_at")
+  
+  createdByUserId String?     @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?     @map("updated_by_user_id") @db.Uuid
 
   client        Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   rental        Rental?       @relation(fields: [rentalId], references: [id], onDelete: SetNull)
+  createdBy     User?         @relation("InvoiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy     User?         @relation("InvoiceUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
   transactions  Transaction[]
 
+  @@index([invoiceNumber])
   @@index([clientId])
   @@index([rentalId])
   @@index([status])
   @@index([dueDate])
+  @@index([deletedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
   @@map("invoices")
 }
 
