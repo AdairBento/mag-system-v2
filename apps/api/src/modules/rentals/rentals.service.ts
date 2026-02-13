@@ -11,7 +11,21 @@ export class RentalsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateRentalDto): Promise<Rental> {
-    return this.prisma.rental.create({ data: dto });
+    return this.prisma.rental.create({
+      data: {
+        clientId: dto.clientId,
+        driverId: dto.driverId,
+        vehicleId: dto.vehicleId,
+        startDate: dto.startDate,
+        expectedEndDate: dto.expectedEndDate,
+        dailyRate: dto.dailyRate,
+        totalDays: dto.totalDays,
+        totalAmount: dto.totalAmount,
+        deposit: dto.deposit ?? 0,
+        discount: dto.discount ?? 0,
+        notes: dto.notes ?? null,
+      },
+    });
   }
 
   async findAll(filter: FilterRentalDto): Promise<PaginatedResult<Rental>> {

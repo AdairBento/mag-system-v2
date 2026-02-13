@@ -24,7 +24,7 @@ describe('AuthService', () => {
   const mockUser = {
     id: 'user-123',
     email: 'test@example.com',
-    password: '$2a$10$hashedPassword',
+    passwordHash: '$2a$10$hashedPassword',
     name: 'Test User',
     role: 'OPERATOR' as const,
     status: 'ACTIVE' as const,
@@ -142,7 +142,7 @@ describe('AuthService', () => {
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
         data: {
           email: registerDto.email,
-          password: hashedPassword,
+          passwordHash: hashedPassword,
           name: registerDto.name,
           role: registerDto.role,
         },
@@ -196,7 +196,7 @@ describe('AuthService', () => {
       const result = await service.login(loginDto, '192.168.1.1', 'Mozilla/5.0');
 
       expect(mockProgressiveLockService.checkLockBeforeLogin).toHaveBeenCalledWith(mockUser.id);
-      expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.password);
+      expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.passwordHash);
       expect(mockProgressiveLockService.resetFailedAttempts).toHaveBeenCalledWith(mockUser.id);
       expect(mockAuditService.logLogin).toHaveBeenCalled();
       expect(result).toHaveProperty('accessToken');

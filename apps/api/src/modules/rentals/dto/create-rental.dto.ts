@@ -6,6 +6,7 @@ export class CreateRentalDto {
   @ApiProperty() @IsString() driverId: string;
   @ApiProperty() @IsString() vehicleId: string;
   @ApiProperty() @IsDateString() startDate: string;
+  expectedEndDate: string;
   @ApiProperty() @IsDateString() endDate: string;
   @ApiProperty() @IsNumber() dailyRate: number;
   @ApiProperty() @IsNumber() totalDays: number;

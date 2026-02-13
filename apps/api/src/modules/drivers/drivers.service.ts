@@ -33,7 +33,7 @@ export class DriversService {
           id: existing.id,
           name: existing.name,
           document: existing.document,
-          currentClient: existing.client?.name || 'Sem vínculo',
+          currentClient: existing.clientId ? 'Cliente vinculado' : 'Sem vínculo',
         },
       });
     }
@@ -50,7 +50,7 @@ export class DriversService {
 
       if (client.documentType !== 'CNPJ') {
         throw new BadRequestException(
-          'Motoristas só podem ser vinculados a clientes Pessoa Jurídica (CNPJ)',
+          'Motoristas só podem ser vinculados a clientes Pessoa Jurídica (CNPJ)'
         );
       }
     }
@@ -82,7 +82,7 @@ export class DriversService {
     }
 
     if (clientId) {
-      where.clientId = clientId;
+      where.clientIdId = clientId;
     }
 
     const [data, total] = await Promise.all([
@@ -99,7 +99,7 @@ export class DriversService {
     // Adicionar clientName ao resultado
     const enrichedData = data.map((driver) => ({
       ...driver,
-      clientName: driver.client?.name || null,
+      clientName: driver.clientId ? 'Cliente vinculado' : null,
     }));
 
     return {
@@ -142,7 +142,7 @@ export class DriversService {
 
       if (client.documentType !== 'CNPJ') {
         throw new BadRequestException(
-          'Motoristas só podem ser vinculados a clientes Pessoa Jurídica (CNPJ)',
+          'Motoristas só podem ser vinculados a clientes Pessoa Jurídica (CNPJ)'
         );
       }
     }
@@ -170,10 +170,7 @@ export class DriversService {
   /**
    * 🔄 MIGRAÇÃO: Transfere motorista de um cliente para outro
    */
-  async migrateDriver(
-    driverId: string,
-    newClientId: string,
-  ): Promise<Driver> {
+  async migrateDriver(driverId: string, newClientId: string): Promise<Driver> {
     const driver = await this.prisma.driver.findUnique({
       where: { id: driverId },
       include: { client: true },
@@ -193,7 +190,7 @@ export class DriversService {
 
     if (newClient.documentType !== 'CNPJ') {
       throw new BadRequestException(
-        'Motoristas só podem ser migrados para clientes Pessoa Jurídica (CNPJ)',
+        'Motoristas só podem ser migrados para clientes Pessoa Jurídica (CNPJ)'
       );
     }
 

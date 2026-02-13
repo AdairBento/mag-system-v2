@@ -13,7 +13,7 @@ datasource db {
 
 model User {
   id        String     @id @default(uuid()) @db.Uuid
-  email     String     @db.VarChar(320)
+  email     String @unique     @db.VarChar(320)
   passwordHash  String  @map("password_hash")
   name      String
   role      UserRole   @default(OPERATOR)
@@ -143,7 +143,7 @@ model Driver {
   name             String
   email            String?         @db.VarChar(320)
   phone            String          @db.VarChar(20)
-  document         String          @db.VarChar(14)
+  document         String @unique          @db.VarChar(14)
   licenseNumber    String          @db.VarChar(20) @map("license_number")
   licenseCategory  LicenseCategory @map("license_category")
   licenseExpiresAt DateTime        @map("license_expires_at")
@@ -706,3 +706,5 @@ model Setting {
 
   @@map("settings")
 }
+
+

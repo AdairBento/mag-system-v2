@@ -66,3 +66,9 @@ dist/
 # Prisma backups e env production (local only)
 _BACKUPS_PRISMA/
 .env.production
+
+# Local artifacts and backups
+*.backup
+_TEST_REPORT_*.txt
+_BACKUPS_FIX_*/
+scripts/fix-*.ps1

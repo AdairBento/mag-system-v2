@@ -27,17 +27,13 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly auditService: AuditService,
-    private readonly lockService: ProgressiveLockService,
+    private readonly lockService: ProgressiveLockService
   ) {}
 
   /**
    * Registra novo usuário
    */
-  async register(
-    dto: RegisterDto,
-    ipAddress?: string,
-    userAgent?: string,
-  ): Promise<AuthTokens> {
+  async register(dto: RegisterDto, ipAddress?: string, userAgent?: string): Promise<AuthTokens> {
     // Verifica se email já existe
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -54,7 +50,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         name: dto.name,
         role: dto.role ?? 'OPERATOR',
       },
@@ -64,11 +60,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.role);
 
     // Armazena refresh token
-    await this.refreshTokenService.generateRefreshToken(
-      user.id,
-      ipAddress,
-      userAgent,
-    );
+    await this.refreshTokenService.generateRefreshToken(user.id, ipAddress, userAgent);
 
     // Auditoria
     await this.auditService.logRegister(user.id, ipAddress, userAgent);
@@ -87,11 +79,7 @@ export class AuthService {
   /**
    * Login com email e senha
    */
-  async login(
-    dto: LoginDto,
-    ipAddress?: string,
-    userAgent?: string,
-  ): Promise<AuthTokens> {
+  async login(dto: LoginDto, ipAddress?: string, userAgent?: string): Promise<AuthTokens> {
     // Busca usuário
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -103,7 +91,7 @@ export class AuthService {
         dto.email,
         'Usuário não encontrado',
         ipAddress,
-        userAgent,
+        userAgent
       );
       throw new UnauthorizedException('Credenciais inválidas');
     }
@@ -112,30 +100,22 @@ export class AuthService {
     await this.lockService.checkLockBeforeLogin(user.id);
 
     // Verifica senha
-    const passwordValid = await bcrypt.compare(dto.password, user.password);
+    const passwordValid = await bcrypt.compare(dto.password, user.passwordHash);
 
     if (!passwordValid) {
       // Registra falha
-      const lockResult = await this.lockService.recordFailedAttempt(
-        user.id,
-        ipAddress,
-      );
+      const lockResult = await this.lockService.recordFailedAttempt(user.id, ipAddress);
 
-      await this.auditService.logLoginFailed(
-        dto.email,
-        'Senha inválida',
-        ipAddress,
-        userAgent,
-      );
+      await this.auditService.logLoginFailed(dto.email, 'Senha inválida', ipAddress, userAgent);
 
       if (lockResult.locked) {
         throw new UnauthorizedException(
-          `Conta bloqueada por ${lockResult.lockMinutes} minuto(s) após ${lockResult.attempts} tentativas falhadas`,
+          `Conta bloqueada por ${lockResult.lockMinutes} minuto(s) após ${lockResult.attempts} tentativas falhadas`
         );
       }
 
       throw new UnauthorizedException(
-        `Credenciais inválidas. Tentativa ${lockResult.attempts}/${5}`,
+        `Credenciais inválidas. Tentativa ${lockResult.attempts}/${5}`
       );
     }
 
@@ -151,11 +131,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.role);
 
     // Armazena refresh token
-    await this.refreshTokenService.generateRefreshToken(
-      user.id,
-      ipAddress,
-      userAgent,
-    );
+    await this.refreshTokenService.generateRefreshToken(user.id, ipAddress, userAgent);
 
     // Auditoria
     await this.auditService.logLogin(user.id, ipAddress, userAgent);
@@ -178,7 +154,7 @@ export class AuthService {
     userId: string,
     refreshToken: string,
     ipAddress?: string,
-    userAgent?: string,
+    userAgent?: string
   ): Promise<void> {
     await this.refreshTokenService.revokeRefreshToken(refreshToken);
     await this.auditService.logLogout(userId, ipAddress, userAgent);
@@ -190,12 +166,10 @@ export class AuthService {
   async refreshAccessToken(
     refreshToken: string,
     ipAddress?: string,
-    userAgent?: string,
+    userAgent?: string
   ): Promise<{ accessToken: string }> {
     // Valida refresh token
-    const payload = await this.refreshTokenService.validateRefreshToken(
-      refreshToken,
-    );
+    const payload = await this.refreshTokenService.validateRefreshToken(refreshToken);
 
     if (!payload) {
       throw new UnauthorizedException('Refresh token inválido ou expirado');
@@ -224,7 +198,7 @@ export class AuthService {
    */
   private async generateTokens(
     userId: string,
-    role: string,
+    role: string
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = { sub: userId, role };
 
@@ -236,7 +210,7 @@ export class AuthService {
       { ...payload, type: 'refresh' },
       {
         expiresIn: this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d'),
-      },
+      }
     );
 
     return { accessToken, refreshToken };
@@ -245,10 +219,7 @@ export class AuthService {
   /**
    * Gera apenas access token
    */
-  private async generateAccessToken(
-    userId: string,
-    role: string,
-  ): Promise<string> {
+  private async generateAccessToken(userId: string, role: string): Promise<string> {
     const payload = { sub: userId, role };
 
     return this.jwtService.sign(payload, {
