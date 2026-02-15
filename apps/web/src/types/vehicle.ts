@@ -1,65 +1,23 @@
-export enum VehicleStatus {
-  AVAILABLE = 'AVAILABLE',
-  RENTED = 'RENTED',
-  MAINTENANCE = 'MAINTENANCE',
-  INACTIVE = 'INACTIVE',
-}
+/**
+ * Vehicle domain types
+ * Tipos relacionados ao domínio de veículos
+ */
 
-export enum VehicleCategory {
-  ECONOMIC = 'ECONOMIC',
-  INTERMEDIATE = 'INTERMEDIATE',
-  EXECUTIVE = 'EXECUTIVE',
-  SUV = 'SUV',
-}
+export type VehicleStatus = 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+export type VehicleCategory = 'ECONOMIC' | 'INTERMEDIATE' | 'EXECUTIVE' | 'SUV';
 
-export enum FuelType {
-  GASOLINE = 'GASOLINE',
-  ETHANOL = 'ETHANOL',
-  FLEX = 'FLEX',
-  DIESEL = 'DIESEL',
-  ELECTRIC = 'ELECTRIC',
-}
+// Filtros (incluindo "all")
+export type VehicleStatusFilter = 'all' | VehicleStatus;
+export type VehicleCategoryFilter = 'all' | VehicleCategory;
 
-export enum Transmission {
-  MANUAL = 'MANUAL',
-  AUTOMATIC = 'AUTOMATIC',
-}
-
+// Tipos completos (para uso em forms, APIs, etc)
 export interface Vehicle {
   id: string;
   plate: string;
-  registrationNumber: string; // Renavam
-  chassis: string;
   brand: string;
   model: string;
   year: number;
-  color: string;
-  category: VehicleCategory;
-  fuelType: FuelType;
-  transmission: Transmission;
-  seats: number;
-  km: number;
-  dailyRate: number;
   status: VehicleStatus;
-  features?: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  category: VehicleCategory;
+  // ... outros campos
 }
-
-export interface VehicleFilters {
-  search?: string;
-  status?: VehicleStatus;
-  category?: VehicleCategory;
-  page?: number;
-  limit?: number;
-}
-
-export interface VehiclesResponse {
-  items: Vehicle[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export type CreateVehicleDto = Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateVehicleDto = Partial<CreateVehicleDto>;
