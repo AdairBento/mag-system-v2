@@ -20,7 +20,7 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
     formState: { errors },
   } = useForm<CreateVehicleDto>({
     defaultValues: {
-      plate: '',
+      licensePlate: '',
       registrationNumber: '',
       chassis: '',
       brand: '',
@@ -39,10 +39,28 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
 
   useEffect(() => {
     if (vehicle) {
-      reset(vehicle);
+      const normalized: CreateVehicleDto = {
+        licensePlate: vehicle.licensePlate ?? vehicle.plate ?? '',
+        brand: vehicle.brand ?? '',
+        model: vehicle.model ?? '',
+        year: vehicle.year ?? undefined,
+        color: vehicle.color ?? '',
+        category: vehicle.category ?? undefined,
+        status: vehicle.status ?? undefined,
+        fuelType: vehicle.fuelType ?? undefined,
+        transmission: vehicle.transmission ?? undefined,
+        dailyRate: vehicle.dailyRate ?? undefined,
+        mileage: vehicle.mileage ?? vehicle.km ?? undefined,
+        features: vehicle.features ?? undefined,
+        imageUrl: vehicle.imageUrl ?? undefined,
+        registrationNumber: vehicle.registrationNumber ?? undefined,
+        chassis: vehicle.chassis ?? undefined,
+        seats: vehicle.seats ?? undefined,
+      };
+      reset(normalized);
     } else {
       reset({
-        plate: '',
+        licensePlate: '',
         registrationNumber: '',
         chassis: '',
         brand: '',
@@ -78,12 +96,14 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
             <div>
               <label className="block text-sm font-medium mb-1">Placa *</label>
               <input
-                {...register('plate', { required: 'Campo obrigatório' })}
+                {...register('licensePlate', { required: 'Campo obrigatório' })}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-200"
                 placeholder="ABC-1234"
                 maxLength={8}
               />
-              {errors.plate && <p className="text-xs text-red-600 mt-1">{errors.plate.message}</p>}
+              {errors.licensePlate && (
+                <p className="text-xs text-red-600 mt-1">{errors.licensePlate.message}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Renavam *</label>

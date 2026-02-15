@@ -14,9 +14,11 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Car className="w-5 h-5 text-teal-600" />
-          <span className="font-semibold">{vehicle.plate}</span>
+          <span className="font-semibold">{vehicle.plate ?? vehicle.licensePlate}</span>
         </div>
-        <span className={`text-xs px-2 py-1 rounded ${statusColors[vehicle.status] || ''}`}>
+        <span
+          className={`text-xs px-2 py-1 rounded ${statusColors[vehicle.status ?? 'AVAILABLE'] || ''}`}
+        >
           {vehicle.status}
         </span>
       </div>
@@ -30,7 +32,9 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 
       <div className="flex items-center justify-between pt-3 border-t">
         <span className="text-slate-500 text-sm">{vehicle.category}</span>
-        <span className="text-teal-600 font-bold">R$ {vehicle.dailyRate.toFixed(2)}/dia</span>
+        <span className="text-teal-600 font-bold">
+          R$ {(vehicle.dailyRate ?? 0).toFixed(2)}/dia
+        </span>
       </div>
     </div>
   );

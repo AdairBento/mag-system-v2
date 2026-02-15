@@ -1,5 +1,27 @@
+// apps/web/src/app/(app)/veiculos/page.tsx
 'use client';
-import type { Vehicle, VehicleStatus, VehicleCategory, CreateVehicleDto } from '@/types/vehicle';
+
+import { useState } from 'react';
+import { Car, Plus, Search, AlertCircle, Edit, Trash2 } from 'lucide-react';
+
+import { useDebounce } from '@/lib/hooks/use-debounce';
+import {
+  useVehicles,
+  useCreateVehicle,
+  useUpdateVehicle,
+  useDeleteVehicle,
+} from '@/lib/hooks/use-vehicles';
+
+import type {
+  Vehicle,
+  VehicleCategory,
+  VehicleStatus,
+  CreateVehicleDto,
+  UpdateVehicleDto,
+} from '@/types/vehicle';
+
+import { VehicleCard } from './_components/vehicle-card';
+import { VehicleFormModal } from './_components/vehicle-form-modal';
 
 export default function VehiclesPage() {
   const [search, setSearch] = useState('');
@@ -8,13 +30,14 @@ export default function VehiclesPage() {
   const [statusFilter, setStatusFilter] = useState<VehicleStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<VehicleCategory | 'all'>('all');
   const [page, setPage] = useState(1);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
   const filters = {
-    search: debouncedSearch || undefined,
-    status: statusFilter !== 'all' ? statusFilter : undefined,
-    category: categoryFilter !== 'all' ? categoryFilter : undefined,
+    search: debouncedSearch,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    category: categoryFilter === 'all' ? undefined : categoryFilter,
     page,
     limit: 12,
   };
@@ -24,136 +47,138 @@ export default function VehiclesPage() {
   const updateMutation = useUpdateVehicle();
   const deleteMutation = useDeleteVehicle();
 
-  const handleSubmit = (formData: CreateVehicleDto) => {
-    if (editingVehicle) {
-      updateMutation.mutate(
-        { id: editingVehicle.id, data: formData },
-        {
-          onSuccess: () => {
-            setIsModalOpen(false);
-            setEditingVehicle(null);
-          },
-        }
-      );
-    } else {
-      createMutation.mutate(formData, {
-        onSuccess: () => {
-          setIsModalOpen(false);
-        },
-      });
-    }
+  const handleCreate = (formData: CreateVehicleDto) => {
+    createMutation.mutate(formData, {
+      onSuccess: () => setIsModalOpen(false),
+    });
   };
 
-  const handleEdit = (vehicle: Vehicle) => {
-    setEditingVehicle(vehicle);
-    setIsModalOpen(true);
+  const handleUpdate = (formData: CreateVehicleDto) => {
+    if (!editingVehicle) return;
+
+    updateMutation.mutate(
+      { id: editingVehicle.id, data: { ...formData, id: editingVehicle.id } as UpdateVehicleDto },
+      {
+        onSuccess: () => {
+          setIsModalOpen(false);
+          setEditingVehicle(null);
+        },
+      }
+    );
   };
 
   const handleDelete = (vehicle: Vehicle) => {
-    if (confirm(`Remover ${vehicle.brand} ${vehicle.model} (${vehicle.plate})?`)) {
+    const plate = vehicle.plate ?? vehicle.licensePlate ?? '';
+    if (confirm(`Deseja excluir o veículo ${plate}?`)) {
       deleteMutation.mutate(vehicle.id);
     }
   };
 
-  const handleNewVehicle = () => {
-    setEditingVehicle(null);
-    setIsModalOpen(true);
-  };
-
-  const totalPages = Math.ceil((data?.total || 0) / 12);
+  const items = (data?.items ?? data?.data ?? []) as Vehicle[];
+  const totalPages = data?.pagination?.totalPages ?? 1;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Car className="w-6 h-6 text-teal-600" />
-          <h1 className="text-2xl font-bold">Veículos</h1>
-          <span className="text-slate-500">({data?.total || 0})</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Car className="w-6 h-6 text-teal-600" />
+            <h1 className="text-2xl font-bold text-slate-800">Veículos</h1>
+          </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 inline-flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Novo Veículo
+          </button>
         </div>
-        <button
-          onClick={handleNewVehicle}
-          className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition"
-        >
-          <Plus className="w-4 h-4" />
-          Novo Veículo
-        </button>
-      </div>
 
-      {/* Filters */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-200"
-            placeholder="Buscar por placa, marca ou modelo..."
-          />
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-4 space-y-4">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por placa, marca, modelo..."
+              className="w-full pl-10 pr-4 py-2 border rounded-lg"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(
+                  (e.target.value === 'ALL' ? 'all' : e.target.value) as VehicleStatus | 'all'
+                )
+              }
+              className="px-4 py-2 border rounded-lg"
+            >
+              <option value="all">Todos os status</option>
+              <option value="AVAILABLE">Disponível</option>
+              <option value="RENTED">Alugado</option>
+              <option value="MAINTENANCE">Manutenção</option>
+              <option value="INACTIVE">Inativo</option>
+            </select>
+
+            <select
+              value={categoryFilter}
+              onChange={(e) =>
+                setCategoryFilter(
+                  (e.target.value === 'ALL' ? 'all' : e.target.value) as VehicleCategory | 'all'
+                )
+              }
+              className="px-4 py-2 border rounded-lg"
+            >
+              <option value="all">Todas as categorias</option>
+              <option value="ECONOMIC">Econômico</option>
+              <option value="INTERMEDIATE">Intermediário</option>
+              <option value="EXECUTIVE">Executivo</option>
+              <option value="HATCH">Hatch</option>
+              <option value="SEDAN">Sedan</option>
+              <option value="SUV">SUV</option>
+              <option value="PICKUP">Pickup</option>
+            </select>
+          </div>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as VehicleStatusFilter);
-            setPage(1);
-          }}
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-200"
-        >
-          <option value="all">Status: Todos</option>
-          <option value="AVAILABLE">Disponível</option>
-          <option value="RENTED">Alugado</option>
-          <option value="MAINTENANCE">Manutenção</option>
-          <option value="INACTIVE">Inativo</option>
-        </select>
-        <select
-          value={categoryFilter}
-          onChange={(e) => {
-            setCategoryFilter(e.target.value as VehicleCategoryFilter);
-            setPage(1);
-          }}
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-200"
-        >
-          <option value="all">Categoria: Todas</option>
-          <option value="ECONOMIC">Econômico</option>
-          <option value="INTERMEDIATE">Intermediário</option>
-          <option value="EXECUTIVE">Executivo</option>
-          <option value="SUV">SUV</option>
-        </select>
-      </div>
 
-      {/* Error */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600" />
-          <p className="text-red-700">Erro ao carregar veículos. Tente novamente.</p>
-        </div>
-      )}
+        {/* Content */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600" />
+            <p className="text-red-800">Erro ao carregar veículos</p>
+          </div>
+        )}
 
-      {/* Loading */}
-      {isLoading && <p className="text-slate-500 text-center py-12">Carregando veículos...</p>}
-
-      {/* Grid */}
-      {!isLoading && !error && data?.items && (
-        <>
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {data.items.map((vehicle) => (
-              <div key={vehicle.id} className="relative group">
+        {isLoading ? (
+          <div className="text-center py-12">Carregando...</div>
+        ) : items.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((vehicle) => (
+              <div key={vehicle.id} className="relative">
                 <VehicleCard vehicle={vehicle} />
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+
+                <div className="absolute top-2 right-2 flex gap-2">
                   <button
-                    onClick={() => handleEdit(vehicle)}
-                    className="p-2 bg-white rounded-lg shadow hover:bg-teal-50 transition"
-                    title="Editar"
+                    onClick={() => {
+                      setEditingVehicle(vehicle);
+                      setIsModalOpen(true);
+                    }}
+                    type="button"
+                    className="p-1 rounded bg-white/80 hover:bg-white"
                   >
                     <Edit className="w-4 h-4 text-teal-600" />
                   </button>
+
                   <button
                     onClick={() => handleDelete(vehicle)}
-                    className="p-2 bg-white rounded-lg shadow hover:bg-red-50 transition"
-                    title="Excluir"
+                    type="button"
+                    className="p-1 rounded bg-white/80 hover:bg-white"
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </button>
@@ -161,52 +186,44 @@ export default function VehiclesPage() {
               </div>
             ))}
           </div>
+        ) : (
+          <div className="text-center py-12 text-slate-500">Nenhum veículo encontrado</div>
+        )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 border rounded-lg disabled:opacity-50 hover:bg-slate-50 transition"
-              >
-                Anterior
-              </button>
-              <span className="px-4 py-2 text-sm">
-                Página <strong>{page}</strong> de <strong>{totalPages}</strong>
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 border rounded-lg disabled:opacity-50 hover:bg-slate-50 transition"
-              >
-                Próxima
-              </button>
-            </div>
-          )}
-        </>
-      )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+            >
+              Anterior
+            </button>
 
-      {/* Empty */}
-      {!isLoading && !error && data?.items?.length === 0 && (
-        <div className="text-center py-12">
-          <Car className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-          <p className="text-slate-400 text-lg">Nenhum veículo encontrado</p>
-          {(search || statusFilter !== 'all' || categoryFilter !== 'all') && (
-            <p className="text-slate-400 text-sm mt-2">Tente ajustar os filtros</p>
-          )}
-        </div>
-      )}
+            <span className="px-4 py-2">
+              Página {page} de {totalPages}
+            </span>
 
-      {/* Modal */}
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+            >
+              Próxima
+            </button>
+          </div>
+        )}
+      </div>
+
       <VehicleFormModal
         isOpen={isModalOpen}
-        vehicle={editingVehicle}
         onClose={() => {
           setIsModalOpen(false);
           setEditingVehicle(null);
         }}
-        onSubmit={handleSubmit}
+        onSubmit={editingVehicle ? handleUpdate : handleCreate}
+        vehicle={editingVehicle}
       />
     </div>
   );
