@@ -12,7 +12,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint src",
-    "type-check": "pnpm exec tsc -p tsconfig.json --noEmit"
+    "type-check": "pnpm exec tsc -p tsconfig.json --noEmit",
+    "dev": "pnpm exec tsc -p tsconfig.json --watch --preserveWatchOutput"
   },
   "dependencies": {
     "class-transformer": "^0.5.1",

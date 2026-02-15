@@ -1,77 +1,88 @@
-import { IsString, IsInt, IsDecimal, IsEnum, IsOptional, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { FuelType, TransmissionType, VehicleCategory } from '@mag-system/shared-types';
-import { Type } from 'class-transformer';
+import { IsString, IsNumber, IsEnum, IsOptional, Min, Max, Length, Matches } from 'class-validator';
+import { VehicleCategory, VehicleStatus } from '@prisma/client';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+export enum FuelType {
+  GASOLINE = 'GASOLINE',
+  ETHANOL = 'ETHANOL',
+  FLEX = 'FLEX',
+  DIESEL = 'DIESEL',
+  ELECTRIC = 'ELECTRIC',
+}
+
+export enum Transmission {
+  MANUAL = 'MANUAL',
+  AUTOMATIC = 'AUTOMATIC',
+}
 
 export class CreateVehicleDto {
-  @ApiProperty({ example: 'ABC-1234', description: 'Vehicle license plate' })
+  @ApiProperty({ example: 'ABC-1234', description: 'Placa do veículo' })
   @IsString()
+  @Length(7, 8)
+  @Matches(/^[A-Z]{3}-?[0-9A-Z]{4}$/)
   plate: string;
 
-  @ApiProperty({ example: 'Toyota', description: 'Vehicle brand' })
-  @IsString()
-  brand: string;
-
-  @ApiProperty({ example: 'Corolla', description: 'Vehicle model' })
-  @IsString()
-  model: string;
-
-  @ApiProperty({ example: 2023, description: 'Manufacturing year' })
-  @IsInt()
-  @Type(() => Number)
-  year: number;
-
-  @ApiProperty({ example: 'Prata', description: 'Vehicle color' })
-  @IsString()
-  color: string;
-
-  @ApiProperty({ example: '12345678900', description: 'Vehicle registration number (RENAVAM)' })
+  @ApiProperty({ example: '12345678901234567', description: 'Número de registro/Renavam' })
   @IsString()
   registrationNumber: string;
 
-  @ApiProperty({ example: '9BWZZZ377VT004251', description: 'Vehicle chassis number (VIN)' })
+  @ApiProperty({ example: '9BWZZZ377VT004251', description: 'Número do chassi' })
   @IsString()
+  @Length(17, 17)
   chassis: string;
 
-  @ApiProperty({ example: '150.00', description: 'Daily rental rate in BRL' })
-  @IsDecimal()
-  dailyRate: string;
+  @ApiProperty({ example: 'Volkswagen' })
+  @IsString()
+  brand: string;
 
-  @ApiProperty({
-    enum: FuelType,
-    example: FuelType.FLEX,
-    description: 'Fuel type'
-  })
-  @IsEnum(FuelType)
-  fuelType: FuelType;
+  @ApiProperty({ example: 'Gol' })
+  @IsString()
+  model: string;
 
-  @ApiProperty({
-    enum: TransmissionType,
-    example: TransmissionType.AUTOMATIC,
-    description: 'Transmission type'
-  })
-  @IsEnum(TransmissionType)
-  transmission: TransmissionType;
+  @ApiProperty({ example: 2022 })
+  @IsNumber()
+  @Min(1990)
+  @Max(2027)
+  year: number;
 
-  @ApiProperty({
-    enum: VehicleCategory,
-    example: VehicleCategory.SEDAN,
-    description: 'Vehicle category'
-  })
+  @ApiProperty({ example: 'Prata' })
+  @IsString()
+  color: string;
+
+  @ApiProperty({ enum: VehicleCategory, example: 'ECONOMIC' })
   @IsEnum(VehicleCategory)
   category: VehicleCategory;
 
-  @ApiProperty({ example: 5, description: 'Passenger capacity', required: false, default: 5 })
-  @IsInt()
-  @Min(1)
-  @IsOptional()
-  @Type(() => Number)
-  capacity?: number;
+  @ApiProperty({ enum: FuelType, example: 'FLEX' })
+  @IsEnum(FuelType)
+  fuelType: FuelType;
 
-  @ApiProperty({ example: 50000, description: 'Current mileage in km', required: false, default: 0 })
-  @IsInt()
+  @ApiProperty({ enum: Transmission, example: 'MANUAL' })
+  @IsEnum(Transmission)
+  transmission: Transmission;
+
+  @ApiProperty({ example: 5 })
+  @IsNumber()
+  @Min(2)
+  @Max(12)
+  seats: number;
+
+  @ApiProperty({ example: 50000 })
+  @IsNumber()
   @Min(0)
+  km: number;
+
+  @ApiProperty({ example: 150.0, description: 'Valor da diária em reais' })
+  @IsNumber()
+  @Min(0)
+  dailyRate: number;
+
+  @ApiProperty({ enum: VehicleStatus, example: 'AVAILABLE' })
+  @IsEnum(VehicleStatus)
+  status: VehicleStatus;
+
+  @ApiPropertyOptional({ example: ['Ar condicionado', 'Direção hidráulica'] })
   @IsOptional()
-  @Type(() => Number)
-  mileage?: number;
+  @IsString({ each: true })
+  features?: string[];
 }

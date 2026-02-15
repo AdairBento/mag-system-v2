@@ -54,8 +54,14 @@ export class VehiclesController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized - JWT token required',
   })
-  findAll(@Query() filter: FilterVehicleDto): Promise<PaginatedResult<Vehicle>> {
-    return this.vehiclesService.findAll(filter);
+  async findAll(@Query() filter: FilterVehicleDto): Promise<PaginatedResult<Vehicle>> {
+    const result = await this.vehiclesService.findAll(filter);
+    return {
+      data: result.data,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+    };
   }
 
   @Get(':id')

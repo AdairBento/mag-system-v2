@@ -55,4 +55,24 @@ export default [
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
+
+// BLOQUEIO NODE-ONLY NO WEB
+{
+  files: ["apps/web/**/*.{ts,tsx}"],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          { group: ["fs", "fs/*", "node:fs", "node:fs/*"], message: "❌ BLOQUEADO: 'fs' é Node-only. Mova para apps/api ou use APIs web" },
+          { group: ["path", "path/*", "node:path", "node:path/*"], message: "❌ BLOQUEADO: 'path' é Node-only. Mova para apps/api ou use APIs web" },
+          { group: ["crypto", "node:crypto"], message: "❌ BLOQUEADO: 'crypto' Node-only. Use Web Crypto API (window.crypto)" },
+          { group: ["@nestjs/*"], message: "❌ BLOQUEADO: NestJS é server-side. Não importe no Web" },
+          { group: ["@prisma/*"], message: "❌ BLOQUEADO: Prisma é server-side. Use APIs/Server Actions" },
+          { group: ["**/apps/api/**"], message: "❌ BLOQUEADO: Não importe código de apps/api no Web" }
+        ]
+      }
+    ]
+  }
+},
 ];

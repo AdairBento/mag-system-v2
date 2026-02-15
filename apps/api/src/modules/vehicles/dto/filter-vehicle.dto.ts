@@ -1,43 +1,39 @@
-import { IsOptional, IsEnum, IsInt, Min } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { VehicleStatus, FuelType, VehicleCategory } from '@mag-system/shared-types';
+import { IsOptional, IsEnum, IsNumber, IsString, Min } from 'class-validator';
+import { VehicleCategory, VehicleStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class FilterVehicleDto {
-  @ApiPropertyOptional({ enum: VehicleStatus, description: 'Filter by vehicle status' })
+  @ApiPropertyOptional({ description: 'Buscar por placa, marca ou modelo' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ enum: VehicleStatus })
   @IsOptional()
   @IsEnum(VehicleStatus)
   status?: VehicleStatus;
 
-  @ApiPropertyOptional({ enum: FuelType, description: 'Filter by fuel type' })
-  @IsOptional()
-  @IsEnum(FuelType)
-  fuelType?: FuelType;
-
-  @ApiPropertyOptional({ enum: VehicleCategory, description: 'Filter by category' })
+  @ApiPropertyOptional({ enum: VehicleCategory })
   @IsOptional()
   @IsEnum(VehicleCategory)
   category?: VehicleCategory;
 
-  @ApiPropertyOptional({ description: 'Filter by brand' })
-  @IsOptional()
-  brand?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by model' })
-  @IsOptional()
-  model?: string;
-
-  @ApiPropertyOptional({ default: 0, description: 'Number of records to skip' })
+  @ApiPropertyOptional({ description: 'Página (começa em 1)', example: 1 })
   @IsOptional()
   @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  skip?: number;
-
-  @ApiPropertyOptional({ default: 10, description: 'Number of records to take' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({ description: 'Itens por página', example: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number;
+
+  // Campos calculados (não expostos na API)
+  skip?: number;
   take?: number;
 }
