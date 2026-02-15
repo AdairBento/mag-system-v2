@@ -9,7 +9,7 @@
     "test": "echo \"No tests configured for web app\" && exit 0",
     "test:cov": "echo \"No tests configured for web app\" && exit 0",
     "type-check": "tsc --noEmit",
-    "lint": "next lint",
+    "lint": "eslint .",
     "lint:strict": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --max-warnings=0"
   },
   "dependencies": {
@@ -32,10 +32,10 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.563.0",
-    "next": "^14.1.0",
-    "react": "^18.3.1",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
     "react-day-picker": "9.13.2",
-    "react-dom": "^18.3.1",
+    "react-dom": "^19.2.4",
     "react-hook-form": "7.71.1",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.1",
@@ -48,7 +48,7 @@
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.4.24",
-    "eslint-config-next": "^14.2.35",
+    "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
