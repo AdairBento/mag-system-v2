@@ -72,3 +72,11 @@ _BACKUPS_PRISMA/
 _TEST_REPORT_*.txt
 _BACKUPS_FIX_*/
 scripts/fix-*.ps1
+
+# Backups automáticos (não versionar)
+*.bak
+*.bak-*
+*.backup
+*.backup.*
+**/_backup_*/
+.env.bak*
