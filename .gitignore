@@ -80,3 +80,11 @@ scripts/fix-*.ps1
 *.backup.*
 **/_backup_*/
 .env.bak*
+
+# Backups automáticos (não versionar)
+*.bak
+*.bak-*
+*.backup
+*.backup.*
+**/_backup_*/
+.env.bak*
