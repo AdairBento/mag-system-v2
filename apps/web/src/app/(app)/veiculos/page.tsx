@@ -1,9 +1,6 @@
 'use client';
 import type { Vehicle, VehicleStatus, VehicleCategory, CreateVehicleDto } from '@/types/vehicle';
 
-// Types para filtros de veículos
-type VehicleStatusFilter = 'all' | 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
-type VehicleCategoryFilter = 'all' | 'ECONOMIC' | 'INTERMEDIATE' | 'EXECUTIVE' | 'SUV';
 export default function VehiclesPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 500);
