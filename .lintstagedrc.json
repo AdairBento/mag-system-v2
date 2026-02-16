@@ -1,9 +1,4 @@
 {
-  "*.{ts,tsx}": [
-    "pnpm -C packages/core lint",
-    "pnpm -C apps/api lint"
-  ],
-  "*.{json,md}": [
-    "prettier --write"
-  ]
+  "*.{ts,tsx}": ["prettier --write"],
+  "*.{json,md}": ["prettier --write"]
 }

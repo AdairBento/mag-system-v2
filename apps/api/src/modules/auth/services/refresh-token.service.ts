@@ -1,4 +1,4 @@
-import { Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/database/prisma.service';
@@ -8,7 +8,7 @@ export class RefreshTokenService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
+    private readonly config: ConfigService
   ) {}
 
   /**
@@ -17,7 +17,7 @@ export class RefreshTokenService {
   async generateRefreshToken(
     userId: string,
     ipAddress?: string,
-    userAgent?: string,
+    userAgent?: string
   ): Promise<string> {
     const payload = { sub: userId, type: 'refresh' };
     const expiresIn = this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d');
@@ -35,7 +35,9 @@ export class RefreshTokenService {
         refreshToken: token,
         ipAddress,
         userAgent,
-        expiresAt}});
+        expiresAt,
+      },
+    });
 
     return token;
   }
@@ -50,7 +52,8 @@ export class RefreshTokenService {
 
       // Busca sessão no banco
       const session = await this.prisma.session.findUnique({
-        where: { refreshToken: token }});
+        where: { refreshToken: token },
+      });
 
       if (!session) {
         return null;
@@ -73,7 +76,8 @@ export class RefreshTokenService {
    */
   async revokeRefreshToken(token: string): Promise<void> {
     await this.prisma.session.deleteMany({
-      where: { refreshToken: token }});
+      where: { refreshToken: token },
+    });
   }
 
   /**
@@ -81,7 +85,8 @@ export class RefreshTokenService {
    */
   async revokeAllUserTokens(userId: string): Promise<void> {
     await this.prisma.session.deleteMany({
-      where: { userId }});
+      where: { userId },
+    });
   }
 
   /**
@@ -91,9 +96,11 @@ export class RefreshTokenService {
     const result = await this.prisma.session.deleteMany({
       where: {
         expiresAt: {
-          lt: new Date()}}});
+          lt: new Date(),
+        },
+      },
+    });
 
     return result.count;
   }
 }
-

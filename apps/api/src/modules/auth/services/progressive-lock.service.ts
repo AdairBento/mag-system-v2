@@ -9,7 +9,7 @@ const LOCK_DURATION_MINUTES = 15;
 export class ProgressiveLockService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly auditService: AuditService,
+    private readonly auditService: AuditService
   ) {}
 
   /**
@@ -50,7 +50,7 @@ export class ProgressiveLockService {
    */
   async recordFailedAttempt(
     userId: string,
-    _ipAddress?: string,
+    _ipAddress?: string
   ): Promise<{ locked: boolean; lockMinutes: number; attempts: number }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -78,7 +78,7 @@ export class ProgressiveLockService {
       await this.auditService.logAccountLocked(
         userId,
         `${MAX_ATTEMPTS} tentativas de login falhadas`,
-        LOCK_DURATION_MINUTES,
+        LOCK_DURATION_MINUTES
       );
 
       return {
@@ -124,9 +124,8 @@ export class ProgressiveLockService {
       const remainingMinutes = await this.getRemainingLockTime(userId);
 
       throw new UnauthorizedException(
-        `Conta bloqueada. Tente novamente em ${remainingMinutes} minuto(s).`,
+        `Conta bloqueada. Tente novamente em ${remainingMinutes} minuto(s).`
       );
     }
   }
 }
-
