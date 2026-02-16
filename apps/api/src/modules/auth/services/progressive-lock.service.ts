@@ -50,7 +50,7 @@ export class ProgressiveLockService {
    */
   async recordFailedAttempt(
     userId: string,
-    ipAddress?: string,
+    _ipAddress?: string,
   ): Promise<{ locked: boolean; lockMinutes: number; attempts: number }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -129,3 +129,4 @@ export class ProgressiveLockService {
     }
   }
 }
+
