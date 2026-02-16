@@ -25,11 +25,11 @@
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "@mag-system/eslint-config": "workspace:*",
-    "prisma": "^6.19.2",
+    "prisma": "^6",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@prisma/client": "6.19.2"
+    "@prisma/client": "^6"
   }
 }

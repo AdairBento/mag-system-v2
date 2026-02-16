@@ -1,0 +1,89 @@
+// apps/web/src/types/vehicle.ts
+// ============================================
+// VEHICLE TYPE DEFINITIONS - SINGLE SOURCE OF TRUTH
+// ============================================
+
+// ============================================
+// ENUMS E TIPOS BASE
+// ============================================
+
+export type VehicleStatus = 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+export type VehicleCategory = 'HATCH' | 'SEDAN' | 'SUV' | 'PICKUP';
+export type FuelType = 'GASOLINE' | 'ETHANOL' | 'FLEX' | 'DIESEL' | 'ELECTRIC' | 'HYBRID';
+export type Transmission = 'MANUAL' | 'AUTOMATIC' | 'CVT';
+
+// ============================================
+// FILTROS
+// ============================================
+
+export type VehicleStatusFilter = VehicleStatus | 'ALL';
+export type VehicleCategoryFilter = VehicleCategory | 'ALL';
+
+export interface VehicleFilters {
+  search?: string;
+  status?: VehicleStatusFilter;
+  category?: VehicleCategoryFilter;
+  page?: number;
+  limit?: number;
+}
+
+// ============================================
+// ENTIDADES
+// ============================================
+
+export interface Vehicle {
+  id: string;
+  licensePlate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  category: VehicleCategory;
+  status: VehicleStatus;
+  fuelType: FuelType;
+  transmission: Transmission;
+  dailyRate: number;
+  mileage: number;
+  features?: string[];
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ============================================
+// DTOs (Data Transfer Objects)
+// ============================================
+
+export interface CreateVehicleDto {
+  licensePlate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  category: VehicleCategory;
+  status: VehicleStatus;
+  fuelType: FuelType;
+  transmission: Transmission;
+  dailyRate: number;
+  mileage: number;
+  features?: string[];
+  imageUrl?: string;
+}
+
+export interface UpdateVehicleDto extends Partial<CreateVehicleDto> {
+  id: string;
+}
+
+// ============================================
+// RESPONSES API
+// ============================================
+
+export interface VehiclesResponse {
+  data: Vehicle[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}

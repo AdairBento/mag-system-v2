@@ -1,4 +1,9 @@
 {
-  "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-  "*.{json,md}": ["prettier --write"]
+  "*.{ts,tsx}": [
+    "pnpm -C packages/core lint",
+    "pnpm -C apps/api lint"
+  ],
+  "*.{json,md}": [
+    "prettier --write"
+  ]
 }
