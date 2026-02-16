@@ -9,7 +9,7 @@
     "test": "echo \"No tests configured for web app\" && exit 0",
     "test:cov": "echo \"No tests configured for web app\" && exit 0",
     "type-check": "tsc --noEmit",
-    "lint": "node .\\node_modules\\next\\dist\\bin\\next lint",
+    "lint": "next lint",
     "lint:strict": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --max-warnings=0"
   },
   "dependencies": {
