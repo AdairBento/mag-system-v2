@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "test": "echo \"No tests configured for web app\" && exit 0",
+    "lint:strict": "eslint src --max-warnings=0",
     "test:cov": "echo \"No tests configured for web app\" && exit 0",
+    "build": "next build",
+    "typecheck": "pnpm run type-check",
     "type-check": "tsc --noEmit",
-    "lint": "next lint --dir src --dir app",
-    "lint:strict": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --max-warnings=0"
+    "test": "echo \"No tests configured for web app\" && exit 0",
+    "start": "next start",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@mag-system/eslint-config": "workspace:*",
     "@types/node": "^20.19.31",
+    "eslint": "^9.0.0",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.4.24",

@@ -7,13 +7,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm exec tsc -p tsconfig.json",
-    "test": "jest --passWithNoTests",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "dev": "pnpm exec tsc -p tsconfig.json --watch --preserveWatchOutput",
     "lint": "eslint src --ext .ts,.tsx --fix",
+    "test:watch": "jest --watch",
+    "typecheck": "pnpm run type-check",
+    "test:coverage": "jest --coverage",
     "type-check": "pnpm exec tsc -p tsconfig.json --noEmit",
-    "dev": "pnpm exec tsc -p tsconfig.json --watch --preserveWatchOutput"
+    "test": "jest --passWithNoTests",
+    "build": "pnpm exec tsc -p tsconfig.json"
   },
   "dependencies": {
     "class-transformer": "^0.5.1",

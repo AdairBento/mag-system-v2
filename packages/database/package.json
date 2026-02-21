@@ -8,19 +8,21 @@
     "prisma/schema.prisma"
   ],
   "scripts": {
-    "prisma:validate": "dotenv -e ../../.env -- prisma validate",
-    "build": "dotenv -e ../../.env -- prisma generate && tsc",
-    "prisma:format": "dotenv -e ../../.env -- prisma format",
-    "prisma:migrate:prod": "dotenv -e ../../.env.production -- prisma migrate deploy",
-    "prisma:seed:prod": "dotenv -e ../../.env.production -- tsx prisma/seed/index.ts",
+    "typecheck": "pnpm run type-check",
     "prisma:generate": "dotenv -e ../../.env -- prisma generate",
+    "prisma:migrate:resolve": "dotenv -e ../../.env.production -- prisma migrate resolve",
+    "build": "dotenv -e ../../.env -- prisma generate && tsc",
+    "prisma:reset": "dotenv -e ../../.env -- prisma migrate reset",
     "type-check": "tsc --noEmit",
     "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
-    "prisma:seed": "dotenv -e ../../.env -- tsx prisma/seed/index.ts",
-    "prisma:reset": "dotenv -e ../../.env -- prisma migrate reset",
+    "db:generate": "prisma generate",
+    "prisma:seed:prod": "dotenv -e ../../.env.production -- tsx prisma/seed/index.ts",
+    "prisma:migrate:prod": "dotenv -e ../../.env.production -- prisma migrate deploy",
     "prisma:studio": "dotenv -e ../../.env -- prisma studio",
-    "prisma:migrate:resolve": "dotenv -e ../../.env.production -- prisma migrate resolve",
-    "prisma:migrate:status": "dotenv -e ../../.env.production -- prisma migrate status"
+    "prisma:seed": "dotenv -e ../../.env -- tsx prisma/seed/index.ts",
+    "prisma:format": "dotenv -e ../../.env -- prisma format",
+    "prisma:migrate:status": "dotenv -e ../../.env.production -- prisma migrate status",
+    "prisma:validate": "dotenv -e ../../.env -- prisma validate"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

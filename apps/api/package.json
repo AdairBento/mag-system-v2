@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "description": "MAG System API - Backend NestJS",
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
-    "start": "node dist/main",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest --passWithNoTests",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "type-check": "tsc --noEmit"
+    "dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "build": "nest build",
+    "typecheck": "pnpm run type-check",
+    "test:cov": "jest --coverage",
+    "test": "jest --passWithNoTests",
+    "start": "node dist/main"
   },
   "dependencies": {
     "@mag-system/core": "workspace:*",
