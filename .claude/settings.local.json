@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /c/Users/adair/PycharmProject/mag-system-v2 log --oneline -20)",
+      "Bash(git -C /c/Users/adair/PycharmProject/mag-system-v2 log --oneline --all -30)",
+      "Bash(git -C /c/Users/adair/PycharmProject/mag-system-v2 log -20 --pretty=format:\"%h %s %b\")",
+      "Bash(wc:*)",
+      "Bash(node -p \"require\\(''/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/eslint-config-next@16.1.6_eslint@9.29.0_typescript@5.9.3/node_modules/eslint-config-next/package.json''\\).peerDependencies\")",
+      "Bash(node -p:*)",
+      "Bash(node -e \":*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm --filter @mag-system/web lint:*)",
+      "Bash(node:*)",
+      "Bash(pnpm --filter @mag-system/api lint:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm test:*)"
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+PWD: C:\Users\adair\PycharmProject\mag-system-v2\apps\web
+
+Get-Command next -All:
+Get-Command failed: The term 'next' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+where.exe next:
+
+node_modules/.bin contents (next*):
+C:\Users\adair\PycharmProject\mag-system-v2\apps\web\node_modules\.bin\next
+C:\Users\adair\PycharmProject\mag-system-v2\apps\web\node_modules\.bin\next.CMD
+C:\Users\adair\PycharmProject\mag-system-v2\apps\web\node_modules\.bin\next.ps1
+
+--- SHIM: .\node_modules\.bin\next.cmd ---
+@SETLOCAL
+@IF NOT DEFINED NODE_PATH (
+  @SET "NODE_PATH=C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\bin\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\node_modules"
+) ELSE (
+  @SET "NODE_PATH=C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\bin\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\node_modules;%NODE_PATH%"
+)
+@IF EXIST "%~dp0\node.exe" (
+  "%~dp0\node.exe"  "%~dp0\..\next\dist\bin\next" %*
+) ELSE (
+  @SET PATHEXT=%PATHEXT:;.JS;=;%
+  node  "%~dp0\..\next\dist\bin\next" %*
+)
+
+
+[grep 'lint' inside shim]
+
+--- SHIM: .\node_modules\.bin\next.ps1 ---
+#!/usr/bin/env pwsh
+$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent
+
+$exe=""
+$pathsep=":"
+$env_node_path=$env:NODE_PATH
+$new_node_path="C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\bin\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\dist\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules\next\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25\node_modules;C:\Users\adair\PycharmProject\mag-system-v2\node_modules\.pnpm\node_modules"
+if ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {
+  # Fix case when both the Windows and Linux builds of Node
+  # are installed in the same directory
+  $exe=".exe"
+  $pathsep=";"
+} else {
+  $new_node_path="/mnt/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25/node_modules/next/dist/bin/node_modules:/mnt/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25/node_modules/next/dist/node_modules:/mnt/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25/node_modules/next/node_modules:/mnt/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/next@16.1.6_@babel+core@7.2_b7425865da53ff23ed15cc7a43c4bd25/node_modules:/mnt/c/Users/adair/PycharmProject/mag-system-v2/node_modules/.pnpm/node_modules"
+}
+if ([string]::IsNullOrEmpty($env_node_path)) {
+  $env:NODE_PATH=$new_node_path
+} else {
+  $env:NODE_PATH="$new_node_path$pathsep$env_node_path"
+}
+
+$ret=0
+if (Test-Path "$basedir/node$exe") {
+  # Support pipeline input
+  if ($MyInvocation.ExpectingInput) {
+    $input | & "$basedir/node$exe"  "$basedir/../next/dist/bin/next" $args
+  } else {
+    & "$basedir/node$exe"  "$basedir/../next/dist/bin/next" $args
+  }
+  $ret=$LASTEXITCODE
+} else {
+  # Support pipeline input
+  if ($MyInvocation.ExpectingInput) {
+    $input | & "node$exe"  "$basedir/../next/dist/bin/next" $args
+  } else {
+    & "node$exe"  "$basedir/../next/dist/bin/next" $args
+  }
+  $ret=$LASTEXITCODE
+}
+$env:NODE_PATH=$env_node_path
+exit $ret
+
+
+[grep 'lint' inside shim]
+
+--- 6) Run 'pnpm -C apps/web lint' but echo the exact command line + env ---
+
+NOTE: we won't modify package.json; just show env and try to capture PNPM script args.
+
+Env vars that can affect scripts:
+
+PATH (first 5 entries):
+C:\Program Files\nodejs
+C:\Users\adair\AppData\Roaming\npm
+C:\nvm4w\nodejs
+C:\nvm4w\nodejs
+C:\Program Files\PowerShell\7
+
+Running: pnpm run -w --filter @mag-system/web lint --reporter=append-only
