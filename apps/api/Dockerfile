@@ -1,7 +1,7 @@
 # ================================
 # Base - Debian Bookworm Slim
 # ================================
-FROM node:20.20.0-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
   && rm -rf /var/lib/apt/lists/*
 
-RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 # ================================
 # Dependencies - Instalar deps
