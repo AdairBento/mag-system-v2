@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { Client } from '@mag-system/database';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -58,8 +58,10 @@ export class ClientsService {
     };
   }
 
-  async findOne(id: string): Promise<Client | null> {
-    return this.prisma.client.findUnique({ where: { id } });
+  async findOne(id: string): Promise<Client> {
+    const client = await this.prisma.client.findUnique({ where: { id } });
+    if (!client) throw new NotFoundException(`Client #${id} not found`);
+    return client;
   }
 
   async update(id: string, dto: UpdateClientDto): Promise<Client> {
