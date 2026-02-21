@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ExcelReport, ExcelFormat, GenerateExcelDto } from './dto/generate-excel.dto';
+import { ExcelReport, GenerateExcelDto } from './dto/generate-excel.dto';
 
 export interface ExcelResult {
   data: string;
