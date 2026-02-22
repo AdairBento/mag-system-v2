@@ -5,18 +5,23 @@ export interface DashboardStats {
   pendingInvoices: number;
 }
 
+export interface StatusCount {
+  status: string;
+  count: number;
+}
+
 export interface RentalReport {
-  byStatus: Record<string, number>;
+  byStatus: StatusCount[];
   totalRevenue: number | string;
 }
 
 export interface FleetReport {
-  byStatus: Record<string, number>;
+  byStatus: StatusCount[];
   avgDailyRate: number | string;
 }
 
 export interface FinancialReport {
   totalIncome: number | string;
   totalExpense: number | string;
-  balance: number | string;
+  net: number | string;
 }
