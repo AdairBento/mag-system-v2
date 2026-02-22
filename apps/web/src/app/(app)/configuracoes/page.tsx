@@ -3,16 +3,25 @@
 import { useState } from 'react';
 import { useSettings, useUpsertSetting, useDeleteSetting } from '@/lib/hooks/use-settings';
 
+const PAGE = 10;
+
 export default function ConfiguracoesPage() {
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
   const [editId, setEditId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
 
-  const { data, isLoading } = useSettings(search || undefined);
+  const { data, isLoading } = useSettings(search || undefined, page * PAGE, PAGE);
   const upsert = useUpsertSetting();
   const remove = useDeleteSetting();
 
   const items = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(0);
+  }
 
   function startEdit(id: string, value: string) {
     setEditId(id);
@@ -34,10 +43,10 @@ export default function ConfiguracoesPage() {
             type="text"
             placeholder="Buscar chave..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="border rounded px-3 py-1.5 text-sm w-64"
           />
-          <span className="text-sm text-gray-500 ml-auto">{items.length} configurações</span>
+          <span className="text-sm text-gray-500 ml-auto">{total} configurações</span>
         </div>
 
         <table className="min-w-full text-sm">
@@ -104,6 +113,28 @@ export default function ConfiguracoesPage() {
             )}
           </tbody>
         </table>
+
+        {total > PAGE && (
+          <div className="p-3 border-t flex items-center justify-between text-sm">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-3 py-1 border rounded disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <span>
+              Página {page + 1} de {Math.ceil(total / PAGE)}
+            </span>
+            <button
+              disabled={(page + 1) * PAGE >= total}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1 border rounded disabled:opacity-40"
+            >
+              Próxima
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ import { settingsApi } from '@/lib/api/settings';
 
 const QUERY_KEY = 'settings';
 
-export function useSettings(search?: string) {
+export function useSettings(search?: string, skip?: number, take?: number) {
   return useQuery({
-    queryKey: [QUERY_KEY, search],
-    queryFn: () => settingsApi.list(search),
+    queryKey: [QUERY_KEY, search, skip, take],
+    queryFn: () => settingsApi.list(search, skip, take),
   });
 }
 

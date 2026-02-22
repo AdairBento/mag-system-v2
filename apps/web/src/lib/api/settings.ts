@@ -2,9 +2,11 @@ import { apiClient } from './http';
 import type { Setting, PaginatedResponse } from '@/types/setting';
 
 export const settingsApi = {
-  list: (search?: string): Promise<PaginatedResponse<Setting>> => {
+  list: (search?: string, skip?: number, take?: number): Promise<PaginatedResponse<Setting>> => {
     const p = new URLSearchParams();
     if (search) p.set('search', search);
+    if (skip != null) p.set('skip', String(skip));
+    if (take != null) p.set('take', String(take));
     return apiClient.get<PaginatedResponse<Setting>>(`/settings?${p}`);
   },
 
