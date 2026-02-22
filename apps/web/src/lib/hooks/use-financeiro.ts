@@ -80,3 +80,30 @@ export function useCreateTransaction() {
     onError: () => toast.error('Erro ao registrar transação'),
   });
 }
+
+export function useUpdateTransaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Transaction> }) =>
+      financeiroApi.updateTransaction(id, data),
+    onSuccess: () => {
+      toast.success('Transação atualizada!');
+      queryClient.invalidateQueries({ queryKey: [TRANSACTION_KEY] });
+      queryClient.invalidateQueries({ queryKey: [SUMMARY_KEY] });
+    },
+    onError: () => toast.error('Erro ao atualizar transação'),
+  });
+}
+
+export function useDeleteTransaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => financeiroApi.deleteTransaction(id),
+    onSuccess: () => {
+      toast.success('Transação removida!');
+      queryClient.invalidateQueries({ queryKey: [TRANSACTION_KEY] });
+      queryClient.invalidateQueries({ queryKey: [SUMMARY_KEY] });
+    },
+    onError: () => toast.error('Erro ao remover transação'),
+  });
+}

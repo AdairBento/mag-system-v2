@@ -29,11 +29,16 @@ export class FinanceiroService {
   }
 
   async findAllInvoices(filter: FilterInvoiceDto): Promise<PaginatedResult<Invoice>> {
-    const { skip = 0, take = 10, clientId, rentalId, status } = filter || {};
+    const { skip = 0, take = 10, clientId, rentalId, status, startDate, endDate } = filter || {};
     const where: any = {};
     if (clientId) where.clientId = clientId;
     if (rentalId) where.rentalId = rentalId;
     if (status) where.status = status;
+    if (startDate || endDate) {
+      where.dueDate = {};
+      if (startDate) where.dueDate.gte = new Date(startDate);
+      if (endDate) where.dueDate.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.invoice.findMany({ where, skip, take }),
@@ -74,11 +79,16 @@ export class FinanceiroService {
   }
 
   async findAllTransactions(filter: FilterTransactionDto): Promise<PaginatedResult<Transaction>> {
-    const { skip = 0, take = 10, type, status, invoiceId } = filter || {};
+    const { skip = 0, take = 10, type, status, invoiceId, startDate, endDate } = filter || {};
     const where: any = {};
     if (type) where.type = type;
     if (status) where.status = status;
     if (invoiceId) where.invoiceId = invoiceId;
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.transaction.findMany({ where, skip, take }),
@@ -115,9 +125,13 @@ export class FinanceiroService {
       this.prisma.invoice.count({ where: { status: 'PENDING' } }),
     ]);
 
+    const totalIncome = Number(incomeAgg._sum.amount ?? 0);
+    const totalExpense = Number(expenseAgg._sum.amount ?? 0);
+
     return {
-      totalIncome: incomeAgg._sum.amount ?? 0,
-      totalExpense: expenseAgg._sum.amount ?? 0,
+      totalIncome,
+      totalExpense,
+      balance: totalIncome - totalExpense,
       pendingInvoices,
     };
   }

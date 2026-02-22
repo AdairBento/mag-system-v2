@@ -32,12 +32,15 @@ export interface Transaction {
   createdAt?: string;
 }
 
-export interface FinanceiroSummary {
+export interface FinancialSummary {
   totalIncome: number | string;
   totalExpense: number | string;
   balance: number | string;
   pendingInvoices: number;
 }
+
+/** @deprecated use FinancialSummary */
+export type FinanceiroSummary = FinancialSummary;
 
 export interface PaginatedResponse<T> {
   data: T[];
