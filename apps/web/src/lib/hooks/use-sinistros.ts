@@ -12,6 +12,18 @@ export function useSinistros(filters?: SinistroFilters) {
   });
 }
 
+export function useCreateSinistro() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Sinistro>) => sinistrosApi.create(data),
+    onSuccess: () => {
+      toast.success('Sinistro registrado!');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => toast.error('Erro ao registrar sinistro'),
+  });
+}
+
 export function useUpdateSinistro() {
   const queryClient = useQueryClient();
   return useMutation({

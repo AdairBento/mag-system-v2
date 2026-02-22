@@ -12,6 +12,31 @@ export function useSeguros(filters?: SeguroFilters) {
   });
 }
 
+export function useCreateSeguro() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Seguro>) => segurosApi.create(data),
+    onSuccess: () => {
+      toast.success('Seguro criado!');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => toast.error('Erro ao criar seguro'),
+  });
+}
+
+export function useUpdateSeguro() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Seguro> }) =>
+      segurosApi.update(id, data),
+    onSuccess: () => {
+      toast.success('Seguro atualizado!');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => toast.error('Erro ao atualizar seguro'),
+  });
+}
+
 export function useDeleteSeguro() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -27,11 +27,16 @@ export class SegurosService {
   }
 
   async findAll(filter: FilterSeguroDto): Promise<PaginatedResult<Insurance>> {
-    const { skip = 0, take = 10, vehicleId, status, provider } = filter || {};
+    const { skip = 0, take = 10, vehicleId, status, provider, startDate, endDate } = filter || {};
     const where: any = {};
     if (vehicleId) where.vehicleId = vehicleId;
     if (status) where.status = status;
     if (provider) where.provider = { contains: provider, mode: 'insensitive' };
+    if (startDate || endDate) {
+      where.startDate = {};
+      if (startDate) where.startDate.gte = new Date(startDate);
+      if (endDate) where.startDate.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.insurance.findMany({

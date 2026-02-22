@@ -28,11 +28,16 @@ export class SinistrosService {
   }
 
   async findAll(filter: FilterSinistroDto): Promise<PaginatedResult<Accident>> {
-    const { skip = 0, take = 10, vehicleId, severity, status } = filter || {};
+    const { skip = 0, take = 10, vehicleId, severity, status, startDate, endDate } = filter || {};
     const where: any = {};
     if (vehicleId) where.vehicleId = vehicleId;
     if (severity) where.severity = severity;
     if (status) where.status = status;
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.accident.findMany({

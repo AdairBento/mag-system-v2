@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsNumber, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { InsuranceStatus } from '@mag-system/database';
 
@@ -18,6 +18,16 @@ export class FilterSeguroDto {
   @IsOptional()
   @IsString()
   provider?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
 
   @ApiProperty({ required: false, default: 0 })
   @IsOptional()

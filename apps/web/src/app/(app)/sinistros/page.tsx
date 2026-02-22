@@ -13,10 +13,10 @@ const SEVERITY_COLORS: Record<AccidentSeverity, string> = {
 
 const STATUS_COLORS: Record<AccidentStatus, string> = {
   REPORTED: 'bg-gray-100 text-gray-700',
-  UNDER_INVESTIGATION: 'bg-yellow-100 text-yellow-800',
-  CLAIM_SUBMITTED: 'bg-blue-100 text-blue-800',
-  RESOLVED: 'bg-green-100 text-green-800',
-  CLOSED: 'bg-gray-100 text-gray-500',
+  UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
+  APPROVED: 'bg-blue-100 text-blue-800',
+  REJECTED: 'bg-red-100 text-red-800',
+  SETTLED: 'bg-green-100 text-green-800',
 };
 
 function fmt(v: number | string | null | undefined) {
@@ -24,15 +24,22 @@ function fmt(v: number | string | null | undefined) {
   return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+const SEVERITIES: AccidentSeverity[] = ['MINOR', 'MODERATE', 'SEVERE', 'TOTAL_LOSS'];
+const STATUSES: AccidentStatus[] = ['REPORTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'SETTLED'];
+const PAGE = 10;
+
 export default function SinistrosPage() {
   const [status, setStatus] = useState('');
   const [severity, setSeverity] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const PAGE = 10;
 
   const { data, isLoading } = useSinistros({
     status: status || undefined,
     severity: severity || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     skip: page * PAGE,
     take: PAGE,
   });
@@ -40,6 +47,10 @@ export default function SinistrosPage() {
 
   const items = data?.data ?? [];
   const total = data?.total ?? 0;
+
+  function resetPage() {
+    setPage(0);
+  }
 
   return (
     <div>
@@ -51,40 +62,59 @@ export default function SinistrosPage() {
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
             <option value="">Todos status</option>
-            {(
-              [
-                'REPORTED',
-                'UNDER_INVESTIGATION',
-                'CLAIM_SUBMITTED',
-                'RESOLVED',
-                'CLOSED',
-              ] as AccidentStatus[]
-            ).map((s) => (
+            {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
           </select>
+
           <select
             value={severity}
             onChange={(e) => {
               setSeverity(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
             <option value="">Todas severidades</option>
-            {(['MINOR', 'MODERATE', 'SEVERE', 'TOTAL_LOSS'] as AccidentSeverity[]).map((s) => (
+            {SEVERITIES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
           </select>
+
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            De
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            Até
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
           <span className="text-sm text-gray-500 ml-auto">{total} sinistros</span>
         </div>
 
@@ -130,7 +160,7 @@ export default function SinistrosPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">{new Date(s.date).toLocaleDateString('pt-BR')}</td>
-                  <td className="px-4 py-3 max-w-xs truncate">{s.location}</td>
+                  <td className="px-4 py-3 max-w-[160px] truncate">{s.location}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${SEVERITY_COLORS[s.severity]}`}

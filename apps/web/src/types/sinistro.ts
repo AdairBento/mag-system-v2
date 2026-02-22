@@ -1,10 +1,5 @@
 export type AccidentSeverity = 'MINOR' | 'MODERATE' | 'SEVERE' | 'TOTAL_LOSS';
-export type AccidentStatus =
-  | 'REPORTED'
-  | 'UNDER_INVESTIGATION'
-  | 'CLAIM_SUBMITTED'
-  | 'RESOLVED'
-  | 'CLOSED';
+export type AccidentStatus = 'REPORTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'SETTLED';
 
 export interface Sinistro {
   id: string;

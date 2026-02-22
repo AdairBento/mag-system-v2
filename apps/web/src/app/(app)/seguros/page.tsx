@@ -14,13 +14,20 @@ function fmt(v: number | string) {
   return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+const PAGE = 10;
+
 export default function SegurosPage() {
   const [status, setStatus] = useState('');
+  const [provider, setProvider] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const PAGE = 10;
 
   const { data, isLoading } = useSeguros({
     status: status || undefined,
+    provider: provider || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     skip: page * PAGE,
     take: PAGE,
   });
@@ -29,17 +36,21 @@ export default function SegurosPage() {
   const items = data?.data ?? [];
   const total = data?.total ?? 0;
 
+  function resetPage() {
+    setPage(0);
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Seguros</h1>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-4 border-b flex items-center gap-3">
+        <div className="p-4 border-b flex flex-wrap items-center gap-3">
           <select
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
@@ -50,6 +61,43 @@ export default function SegurosPage() {
               </option>
             ))}
           </select>
+
+          <input
+            type="text"
+            value={provider}
+            onChange={(e) => {
+              setProvider(e.target.value);
+              resetPage();
+            }}
+            placeholder="Seguradora..."
+            className="border rounded px-2 py-1 text-sm w-36"
+          />
+
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            De
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            Até
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
           <span className="text-sm text-gray-500 ml-auto">{total} seguros</span>
         </div>
 
