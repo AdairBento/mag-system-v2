@@ -26,11 +26,16 @@ export class MultasService {
   }
 
   async findAll(filter: FilterMultaDto): Promise<PaginatedResult<Fine>> {
-    const { skip = 0, take = 10, vehicleId, driverId, status } = filter || {};
+    const { skip = 0, take = 10, vehicleId, driverId, status, startDate, endDate } = filter || {};
     const where: any = {};
     if (vehicleId) where.vehicleId = vehicleId;
     if (driverId) where.driverId = driverId;
     if (status) where.status = status;
+    if (startDate || endDate) {
+      where.dueDate = {};
+      if (startDate) where.dueDate.gte = new Date(startDate);
+      if (endDate) where.dueDate.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.fine.findMany({ where, skip, take }),

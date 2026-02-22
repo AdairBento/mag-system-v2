@@ -32,6 +32,19 @@ export function useCreateContrato() {
   });
 }
 
+export function useUpdateContrato() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Contract> }) =>
+      contratosApi.update(id, data),
+    onSuccess: () => {
+      toast.success('Contrato atualizado!');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => toast.error('Erro ao atualizar contrato'),
+  });
+}
+
 export function useSignContrato() {
   const queryClient = useQueryClient();
   return useMutation({

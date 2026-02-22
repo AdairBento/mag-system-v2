@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEnum, IsNumber } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsNumber, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { MaintenanceType, MaintenanceStatus } from '@mag-system/database';
@@ -13,6 +13,8 @@ export class FilterMaintenanceDto {
   @IsOptional()
   @IsEnum(MaintenanceStatus)
   status?: MaintenanceStatus;
+  @ApiProperty({ required: false }) @IsOptional() @IsDateString() startDate?: string;
+  @ApiProperty({ required: false }) @IsOptional() @IsDateString() endDate?: string;
   @ApiProperty({ required: false }) @IsOptional() @Type(() => Number) @IsNumber() skip?: number;
   @ApiProperty({ required: false }) @IsOptional() @Type(() => Number) @IsNumber() take?: number;
 }

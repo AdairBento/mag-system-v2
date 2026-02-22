@@ -10,13 +10,18 @@ const STATUS_COLORS: Record<ContractStatus, string> = {
   CANCELLED: 'bg-gray-100 text-gray-700',
 };
 
+const PAGE = 10;
+
 export default function ContratosPage() {
   const [status, setStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const PAGE = 10;
 
   const { data, isLoading } = useContratos({
     status: status || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     skip: page * PAGE,
     take: PAGE,
   });
@@ -26,17 +31,21 @@ export default function ContratosPage() {
   const items = data?.data ?? [];
   const total = data?.total ?? 0;
 
+  function resetPage() {
+    setPage(0);
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Contratos</h1>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-4 border-b flex items-center gap-3">
+        <div className="p-4 border-b flex flex-wrap items-center gap-3">
           <select
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
@@ -47,6 +56,32 @@ export default function ContratosPage() {
               </option>
             ))}
           </select>
+
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            De
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            Até
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
           <span className="text-sm text-gray-500 ml-auto">{total} contratos</span>
         </div>
 

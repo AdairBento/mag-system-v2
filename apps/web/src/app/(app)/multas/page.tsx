@@ -15,13 +15,18 @@ function fmt(v: number | string) {
   return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+const PAGE = 10;
+
 export default function MultasPage() {
   const [status, setStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const PAGE = 10;
 
   const { data, isLoading } = useMultas({
     status: status || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     skip: page * PAGE,
     take: PAGE,
   });
@@ -30,17 +35,21 @@ export default function MultasPage() {
   const items = data?.data ?? [];
   const total = data?.total ?? 0;
 
+  function resetPage() {
+    setPage(0);
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Multas</h1>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-4 border-b flex items-center gap-3">
+        <div className="p-4 border-b flex flex-wrap items-center gap-3">
           <select
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
@@ -51,13 +60,39 @@ export default function MultasPage() {
               </option>
             ))}
           </select>
+
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            De
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            Até
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
           <span className="text-sm text-gray-500 ml-auto">{total} multas</span>
         </div>
 
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
-              {['Veículo', 'Local', 'Valor', 'Vencimento', 'Status', ''].map((h) => (
+              {['Veículo', 'Local', 'Descrição', 'Valor', 'Vencimento', 'Status', ''].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
@@ -70,13 +105,13 @@ export default function MultasPage() {
           <tbody className="divide-y">
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-3 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-3 text-center text-gray-400">
                   Carregando...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
                   Nenhuma multa encontrada
                 </td>
               </tr>
@@ -95,7 +130,10 @@ export default function MultasPage() {
                       m.vehicleId.slice(0, 8)
                     )}
                   </td>
-                  <td className="px-4 py-3 max-w-xs truncate">{m.location}</td>
+                  <td className="px-4 py-3 max-w-[150px] truncate">{m.location}</td>
+                  <td className="px-4 py-3 max-w-[180px] truncate text-gray-600">
+                    {m.description}
+                  </td>
                   <td className="px-4 py-3 font-medium">{fmt(m.amount)}</td>
                   <td className="px-4 py-3">{new Date(m.dueDate).toLocaleDateString('pt-BR')}</td>
                   <td className="px-4 py-3">

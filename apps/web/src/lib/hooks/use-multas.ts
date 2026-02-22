@@ -12,6 +12,18 @@ export function useMultas(filters?: MultaFilters) {
   });
 }
 
+export function useCreateMulta() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Multa>) => multasApi.create(data),
+    onSuccess: () => {
+      toast.success('Multa registrada!');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => toast.error('Erro ao registrar multa'),
+  });
+}
+
 export function useUpdateMulta() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -25,11 +25,16 @@ export class MaintenanceService {
   }
 
   async findAll(filter: FilterMaintenanceDto): Promise<PaginatedResult<Maintenance>> {
-    const { skip = 0, take = 10, vehicleId, type, status } = filter || {};
+    const { skip = 0, take = 10, vehicleId, type, status, startDate, endDate } = filter || {};
     const where: any = {};
     if (vehicleId) where.vehicleId = vehicleId;
     if (type) where.type = type;
     if (status) where.status = status;
+    if (startDate || endDate) {
+      where.scheduledDate = {};
+      if (startDate) where.scheduledDate.gte = new Date(startDate);
+      if (endDate) where.scheduledDate.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.maintenance.findMany({

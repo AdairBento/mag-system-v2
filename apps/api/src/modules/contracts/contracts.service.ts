@@ -23,10 +23,15 @@ export class ContractsService {
   }
 
   async findAll(filter: FilterContractDto): Promise<PaginatedResult<Contract>> {
-    const { skip = 0, take = 10, rentalId, status } = filter || {};
+    const { skip = 0, take = 10, rentalId, status, startDate, endDate } = filter || {};
     const where: any = {};
     if (rentalId) where.rentalId = rentalId;
     if (status) where.status = status;
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.contract.findMany({

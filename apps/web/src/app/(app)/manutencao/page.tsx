@@ -26,15 +26,20 @@ const TYPES: MaintenanceType[] = [
 ];
 const STATUSES: MaintenanceStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
+const PAGE = 10;
+
 export default function ManutencaoPage() {
   const [status, setStatus] = useState('');
   const [type, setType] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const PAGE = 10;
 
   const { data, isLoading } = useManutencao({
     status: status || undefined,
     type: type || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     skip: page * PAGE,
     take: PAGE,
   });
@@ -42,6 +47,10 @@ export default function ManutencaoPage() {
 
   const items = data?.data ?? [];
   const total = data?.total ?? 0;
+
+  function resetPage() {
+    setPage(0);
+  }
 
   return (
     <div>
@@ -53,7 +62,7 @@ export default function ManutencaoPage() {
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
@@ -64,11 +73,12 @@ export default function ManutencaoPage() {
               </option>
             ))}
           </select>
+
           <select
             value={type}
             onChange={(e) => {
               setType(e.target.value);
-              setPage(0);
+              resetPage();
             }}
             className="border rounded px-2 py-1 text-sm"
           >
@@ -79,6 +89,32 @@ export default function ManutencaoPage() {
               </option>
             ))}
           </select>
+
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            De
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-sm text-gray-600">
+            Até
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                resetPage();
+              }}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
           <span className="text-sm text-gray-500 ml-auto">{total} registros</span>
         </div>
 
@@ -105,7 +141,7 @@ export default function ManutencaoPage() {
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  Nenhum registro
+                  Nenhum registro encontrado
                 </td>
               </tr>
             ) : (

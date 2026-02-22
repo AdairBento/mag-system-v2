@@ -5,6 +5,8 @@ export interface MultaFilters {
   vehicleId?: string;
   driverId?: string;
   status?: string;
+  startDate?: string;
+  endDate?: string;
   skip?: number;
   take?: number;
 }
@@ -15,6 +17,8 @@ export const multasApi = {
     if (filters?.vehicleId) p.set('vehicleId', filters.vehicleId);
     if (filters?.driverId) p.set('driverId', filters.driverId);
     if (filters?.status) p.set('status', filters.status);
+    if (filters?.startDate) p.set('startDate', filters.startDate);
+    if (filters?.endDate) p.set('endDate', filters.endDate);
     if (filters?.skip != null) p.set('skip', String(filters.skip));
     if (filters?.take != null) p.set('take', String(filters.take));
     return apiClient.get<PaginatedResponse<Multa>>(`/multas?${p}`);
