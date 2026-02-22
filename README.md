@@ -7,7 +7,7 @@
 [![Node](https://img.shields.io/badge/node-22.x-green.svg?logo=node.js)](package.json)
 [![PNPM](https://img.shields.io/badge/pnpm-10.x-orange.svg?logo=pnpm)](package.json)
 [![NestJS](https://img.shields.io/badge/NestJS-10.x-E0234E?logo=nestjs)](https://nestjs.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-14.x-000000?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.x-000000?logo=next.js)](https://nextjs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -39,19 +39,20 @@ mag-system-v2/
 # 1. Instalar dependências
 pnpm install
 
-# 2. Configurar database
+# 2. Configurar variáveis de ambiente
 cp .env.example .env
-# Edite .env com suas credenciais PostgreSQL
+# apps/api/.env e apps/web/.env.local já estão configurados para dev local
 
 # 3. Rodar migrations
 pnpm db:migrate
 
-# 4. (Opcional) Popular database
+# 4. Popular banco com dados de exemplo
 pnpm db:seed
+# Cria admin@mag.com / Admin@123, 3 clientes, 3 veículos, 3 motoristas
 
 # 5. Iniciar desenvolvimento
 pnpm dev
-# API: http://localhost:3001
+# API: http://localhost:3001  →  Swagger: http://localhost:3001/api/docs
 # Web: http://localhost:3000
 ```
 
@@ -122,25 +123,12 @@ Prisma ORM com PostgreSQL:
 
 **Completo (✅):**
 
-- Packages (core, database, types)
-- API estrutura base
-- Auth + Clients + Drivers modules
-- Validações + DTOs
-- CI/CD pipeline
-- Templates profissionais
-- React Query setup
-
-**Em Progresso (🔨):**
-
-- Frontend Next.js
-- Dashboard e layouts
-- Migração de motoristas
-
-**Próximo (📋):**
-
-- Vehicles, Rentals modules
-- E2E tests
-- Desenvolvimento incremental
+- Packages (core, database, shared-types)
+- API: todos os 24 módulos implementados (Auth, Clients, Drivers, Vehicles, Rentals, Inspections, Contracts, Maintenance, Multas, Sinistros, Financeiro, Settings, Vistorias, Reports, Notifications, Email, SMS, WhatsApp, PDF, Excel, Storage, Queue, Seguros, Users)
+- Frontend: Dashboard, Clientes, Veículos, Motoristas, Locações, Comunicação, Relatórios, Configurações, Notificações, Fila de Jobs
+- Auth JWT com refresh token, middleware Next.js, login page
+- CI/CD pipeline, Docker, Swagger docs
+- Seed com dados de exemplo
 
 ---
 

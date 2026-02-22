@@ -7,7 +7,11 @@
     "dist",
     "prisma/schema.prisma"
   ],
+  "prisma": {
+    "seed": "dotenv -e ../../.env -- tsx prisma/seed/index.ts"
+  },
   "scripts": {
+    "seed": "prisma db seed",
     "typecheck": "pnpm run type-check",
     "prisma:generate": "dotenv -e ../../.env -- prisma generate",
     "prisma:migrate:resolve": "dotenv -e ../../.env.production -- prisma migrate resolve",
@@ -26,6 +30,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
     "@mag-system/eslint-config": "workspace:*",
     "prisma": "^6",
     "tsx": "^4.21.0",
