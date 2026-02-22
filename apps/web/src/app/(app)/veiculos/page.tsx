@@ -75,7 +75,8 @@ export default function VehiclesPage() {
   };
 
   const items = (data?.items ?? data?.data ?? []) as Vehicle[];
-  const totalPages = data?.pagination?.totalPages ?? 1;
+  const totalItems = data?.total ?? data?.pagination?.total ?? 0;
+  const totalPages = data?.pagination?.totalPages ?? (Math.ceil(totalItems / filters.limit!) || 1);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
@@ -128,21 +129,16 @@ export default function VehiclesPage() {
 
             <select
               value={categoryFilter}
-              onChange={(e) =>
-                setCategoryFilter(
-                  (e.target.value === 'ALL' ? 'all' : e.target.value) as VehicleCategory | 'all'
-                )
-              }
+              onChange={(e) => setCategoryFilter(e.target.value as VehicleCategory | 'all')}
               className="px-4 py-2 border rounded-lg"
             >
               <option value="all">Todas as categorias</option>
-              <option value="ECONOMIC">Econômico</option>
-              <option value="INTERMEDIATE">Intermediário</option>
-              <option value="EXECUTIVE">Executivo</option>
-              <option value="HATCH">Hatch</option>
+              <option value="COMPACT">Compacto</option>
               <option value="SEDAN">Sedan</option>
               <option value="SUV">SUV</option>
               <option value="PICKUP">Pickup</option>
+              <option value="VAN">Van</option>
+              <option value="LUXURY">Luxo</option>
             </select>
           </div>
         </div>

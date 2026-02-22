@@ -27,7 +27,7 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
       model: '',
       year: new Date().getFullYear(),
       color: '',
-      category: VehicleCategory.ECONOMIC,
+      category: VehicleCategory.COMPACT,
       fuelType: FuelType.FLEX,
       transmission: Transmission.MANUAL,
       seats: 5,
@@ -67,7 +67,7 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
         model: '',
         year: new Date().getFullYear(),
         color: '',
-        category: VehicleCategory.ECONOMIC,
+        category: VehicleCategory.COMPACT,
         fuelType: FuelType.FLEX,
         transmission: Transmission.MANUAL,
         seats: 5,
@@ -178,10 +178,12 @@ export function VehicleFormModal({ isOpen, vehicle, onClose, onSubmit }: Vehicle
                 {...register('category')}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-200"
               >
-                <option value={VehicleCategory.ECONOMIC}>Econômico</option>
-                <option value={VehicleCategory.INTERMEDIATE}>Intermediário</option>
-                <option value={VehicleCategory.EXECUTIVE}>Executivo</option>
+                <option value={VehicleCategory.COMPACT}>Compacto</option>
+                <option value={VehicleCategory.SEDAN}>Sedan</option>
                 <option value={VehicleCategory.SUV}>SUV</option>
+                <option value={VehicleCategory.PICKUP}>Pickup</option>
+                <option value={VehicleCategory.VAN}>Van</option>
+                <option value={VehicleCategory.LUXURY}>Luxo</option>
               </select>
             </div>
           </div>

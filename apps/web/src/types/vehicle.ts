@@ -18,19 +18,12 @@ export const VehicleStatus = {
 export type VehicleStatus = (typeof VehicleStatus)[keyof typeof VehicleStatus];
 
 export const VehicleCategory = {
-  // categorias "clássicas"
-  HATCH: 'HATCH',
+  COMPACT: 'COMPACT',
   SEDAN: 'SEDAN',
   SUV: 'SUV',
   PICKUP: 'PICKUP',
   VAN: 'VAN',
   LUXURY: 'LUXURY',
-  OTHER: 'OTHER',
-
-  // compat com UI antiga (form usa ECONOMIC/INTERMEDIATE/EXECUTIVE)
-  ECONOMIC: 'ECONOMIC',
-  INTERMEDIATE: 'INTERMEDIATE',
-  EXECUTIVE: 'EXECUTIVE',
 } as const;
 export type VehicleCategory = (typeof VehicleCategory)[keyof typeof VehicleCategory];
 

@@ -23,11 +23,19 @@ export const vehiclesApi = {
   },
 
   create: async (data: CreateVehicleDto): Promise<Vehicle> => {
-    return apiClient.post<Vehicle>('/vehicles', data);
+    const { licensePlate, mileage, ...rest } = data;
+    const payload = { ...rest, plate: licensePlate ?? rest.plate, km: rest.km ?? mileage };
+    return apiClient.post<Vehicle>('/vehicles', payload);
   },
 
   update: async (id: string, data: UpdateVehicleDto): Promise<Vehicle> => {
-    return apiClient.patch<Vehicle>(`/vehicles/${id}`, data);
+    const { id: _id, licensePlate, mileage, ...rest } = data;
+    const payload = {
+      ...rest,
+      ...(licensePlate !== undefined && { plate: licensePlate }),
+      ...(mileage !== undefined && { km: mileage }),
+    };
+    return apiClient.put<Vehicle>(`/vehicles/${id}`, payload);
   },
 
   delete: async (id: string): Promise<void> => {
