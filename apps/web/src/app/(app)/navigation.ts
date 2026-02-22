@@ -31,7 +31,7 @@ export type NavGroup = {
 };
 
 export const menu: (NavGroup | NavItem)[] = [
-  { type: 'item', name: 'Dashboard', href: '/dashboard', icon: Home },
+  { type: 'item', name: 'Dashboard', href: '/', icon: Home },
   { type: 'group', label: 'Cadastros' },
   { type: 'item', name: 'Clientes', href: '/clientes', icon: Users },
   { type: 'item', name: 'Veículos', href: '/veiculos', icon: Car },
@@ -55,7 +55,7 @@ export const menu: (NavGroup | NavItem)[] = [
 ];
 
 export const iconColors: Record<string, string> = {
-  '/dashboard': 'text-sky-300',
+  '/': 'text-sky-300',
   '/clientes': 'text-emerald-300',
   '/veiculos': 'text-amber-300',
   '/motoristas': 'text-lime-300',

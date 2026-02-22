@@ -29,11 +29,17 @@ export class RentalsService {
   }
 
   async findAll(filter: FilterRentalDto): Promise<PaginatedResult<Rental>> {
-    const { skip = 0, take = 10 } = filter || {};
+    const { skip = 0, take = 10, status, clientId, vehicleId, driverId } = filter || {};
+
+    const where: Record<string, unknown> = {};
+    if (status) where['status'] = status;
+    if (clientId) where['clientId'] = clientId;
+    if (vehicleId) where['vehicleId'] = vehicleId;
+    if (driverId) where['driverId'] = driverId;
 
     const [data, total] = await Promise.all([
-      this.prisma.rental.findMany({ skip, take }),
-      this.prisma.rental.count(),
+      this.prisma.rental.findMany({ where, skip, take, orderBy: { createdAt: 'desc' } }),
+      this.prisma.rental.count({ where }),
     ]);
 
     return {
